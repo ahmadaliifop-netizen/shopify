@@ -1,8 +1,16 @@
+{%- liquid
+  assign footer_logo = settings.logo_inverse
+  if request.locale.iso_code == 'ar' and settings.logo_ar_inverse != blank
+    assign footer_logo = settings.logo_ar_inverse
+  endif
+-%}
 <footer class="site-footer">
   <div class="container site-footer__top">
     <div class="site-footer__brand">
-      {%- if settings.logo_inverse -%}
-        <img src="{{ settings.logo_inverse | image_url: width: 160 }}" alt="{{ shop.name }}" width="140" style="width:140px;" loading="lazy">
+      {%- if footer_logo -%}
+        <img src="{{ footer_logo | image_url: width: 160 }}" alt="{{ shop.name }}" width="140" style="width:140px;" loading="lazy">
+      {%- elsif request.locale.iso_code == 'ar' -%}
+        <span class="site-header__logo-text" style="color: var(--color-bg);">صنايا</span>
       {%- else -%}
         <span class="site-header__logo-text" style="color: var(--color-bg);">SANAYA</span>
       {%- endif -%}

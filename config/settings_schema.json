@@ -13,12 +13,24 @@
       {
         "type": "image_picker",
         "id": "logo",
-        "label": "Logo (teal, for light backgrounds)"
+        "label": "Logo — English (teal, for light backgrounds)"
       },
       {
         "type": "image_picker",
         "id": "logo_inverse",
-        "label": "Logo (cream, for teal/dark backgrounds)"
+        "label": "Logo — English (cream, for teal/dark backgrounds)"
+      },
+      {
+        "type": "image_picker",
+        "id": "logo_ar",
+        "label": "Logo — Arabic (teal, for light backgrounds)",
+        "info": "Optional. Falls back to the English logo if not set."
+      },
+      {
+        "type": "image_picker",
+        "id": "logo_ar_inverse",
+        "label": "Logo — Arabic (cream, for teal/dark backgrounds)",
+        "info": "Optional. Falls back to the English inverse logo if not set."
       },
       {
         "type": "range",

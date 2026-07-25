@@ -1,3 +1,9 @@
+{%- liquid
+  assign header_logo = settings.logo
+  if request.locale.iso_code == 'ar' and settings.logo_ar != blank
+    assign header_logo = settings.logo_ar
+  endif
+-%}
 <header class="site-header" data-header>
   <div class="site-header__inner">
     <button class="icon-btn site-header__hamburger" data-open-panel="mobile-menu" aria-label="{{ 'accessibility.menu' | t }}">
@@ -41,13 +47,16 @@
     </nav>
 
     <a href="{{ routes.root_url }}" class="site-header__logo" aria-label="{{ shop.name }}">
-      {%- if settings.logo -%}
+      {%- if header_logo -%}
         <img
-          src="{{ settings.logo | image_url: width: settings.logo_width | times: 2 }}"
+          src="{{ header_logo | image_url: width: settings.logo_width | times: 2 }}"
           alt="{{ shop.name }}"
           width="{{ settings.logo_width }}"
           style="width: {{ settings.logo_width }}px;"
           loading="eager">
+      {%- elsif request.locale.iso_code == 'ar' -%}
+        <span class="site-header__logo-text">صنايا</span>
+        <span class="site-header__logo-sub">للصحة والجمال</span>
       {%- else -%}
         <span class="site-header__logo-text">SANAYA</span>
         <span class="site-header__logo-sub">Health and Beauty</span>
@@ -65,13 +74,20 @@
         {% render 'icon', name: 'cart' %}
         <span class="icon-btn__count" data-cart-count {% if cart.item_count == 0 %}hidden{% endif %}>{{ cart.item_count }}</span>
       </button>
+      {% render 'language-switcher', context: 'desktop' %}
     </div>
   </div>
 </header>
 
 <div id="mobile-menu" class="mobile-menu" data-panel hidden>
   <div class="mobile-menu__header">
-    <span class="site-header__logo-text">SANAYA</span>
+    {%- if header_logo -%}
+      <img src="{{ header_logo | image_url: width: 220 }}" alt="{{ shop.name }}" width="110" style="width:110px;" loading="lazy">
+    {%- elsif request.locale.iso_code == 'ar' -%}
+      <span class="site-header__logo-text">صنايا</span>
+    {%- else -%}
+      <span class="site-header__logo-text">SANAYA</span>
+    {%- endif -%}
     <button class="icon-btn" data-close-panel aria-label="{{ 'accessibility.close' | t }}">
       {% render 'icon', name: 'close' %}
     </button>
@@ -82,6 +98,9 @@
     {%- endfor -%}
     <li><a class="mobile-menu__link" href="{{ routes.account_url }}">{{ 'accessibility.account' | t }}</a></li>
   </ul>
+  <div class="mobile-menu__lang">
+    {% render 'language-switcher', context: 'mobile' %}
+  </div>
 </div>
 
 <div id="header-search" class="mobile-menu" data-panel hidden style="width:min(520px,100%);">

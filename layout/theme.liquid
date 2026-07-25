@@ -1,5 +1,7 @@
 <!doctype html>
-<html lang="{{ request.locale.iso_code }}" data-theme="sanaya">
+{%- assign is_rtl = false -%}
+{%- if request.locale.iso_code == 'ar' -%}{%- assign is_rtl = true -%}{%- endif -%}
+<html lang="{{ request.locale.iso_code }}" dir="{% if is_rtl %}rtl{% else %}ltr{% endif %}" data-theme="sanaya">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -15,7 +17,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,460;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,460;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&family=Readex+Pro:wght@400;500;600;700&display=swap">
 
   {{ content_for_header }}
   {{ 'theme.css' | asset_url | stylesheet_tag }}

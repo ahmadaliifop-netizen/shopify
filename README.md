@@ -12,6 +12,7 @@ A premium, editorial Shopify Online Store 2.0 theme built for the SANAYA brand: 
 - **Cart**: AJAX slide-out drawer with free-shipping progress bar, plus a full `/cart` page fallback.
 - **About, Contact, 404, Search, Blog/Article** templates, all on-brand.
 - Colors, fonts, logo, cart type and free-shipping threshold are all editable in **Theme settings** (Shopify theme editor) — no code changes needed for basic re-tuning.
+- **Bilingual / RTL**: Arabic (`locales/ar.default.json`) is the primary language, English (`locales/en.json`) the secondary. `<html dir>` switches to `rtl` automatically for Arabic, the whole layout mirrors (header, drawers, nav, PDP gallery, pagination arrows) via CSS logical properties, Arabic body copy renders in Readex Pro at a slightly larger line-height, and a quiet AR/EN toggle (`snippets/language-switcher.liquid`) sits in the header (desktop) and mobile menu, wired to Shopify's built-in localization form.
 
 ## Install
 
@@ -26,3 +27,5 @@ A premium, editorial Shopify Online Store 2.0 theme built for the SANAYA brand: 
 - Create the `main-menu` navigation (Shop / Skincare / Beauty / Wellness / About / Journal) in **Online Store → Navigation**; nest links under "Shop" for the mega menu.
 - Create collections with handles matching the homepage preset links (`skincare`, `beauty`, `wellness`, `all`), and a "Bestsellers" collection for the bestsellers rail.
 - Create `/pages/about` and `/pages/contact` and assign the **about** / **contact** alternate templates.
+- In **Settings → Languages**, add Arabic and English as published languages and set **Arabic as the store's default** (the theme's `ar.default.json` naming expects this). Product, collection, and page *content* (titles, descriptions, section headings you type in the theme editor) is translated separately via Shopify's **Translate & Adapt** app — the locale files here only cover fixed UI strings (buttons, labels, cart, forms).
+- Optionally upload Arabic-specific logo files under **Theme settings → Logo → Logo — Arabic**; if left blank, the theme falls back to the English logo (or a plain "صنايا" text lockup) automatically when the storefront is in Arabic.

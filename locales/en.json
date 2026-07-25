@@ -115,5 +115,10 @@
     "help": "Help",
     "contact": "Contact",
     "rights": "All rights reserved."
+  },
+  "localization": {
+    "language_label": "Language",
+    "arabic": "العربية",
+    "english": "English"
   }
 }

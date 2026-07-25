@@ -1,0 +1,124 @@
+{
+  "general": {
+    "meta": {
+      "tagline": "طقوس يومية للصحة والجمال"
+    },
+    "search": {
+      "placeholder": "ابحثي عن منتجات، مكوّنات، مقالات…",
+      "submit": "بحث",
+      "no_results": "لا نتائج لـ \"{{ terms }}\". جرّبي كلمات أخرى.",
+      "results_count": "{{ count }} نتيجة لـ \"{{ terms }}\""
+    },
+    "newsletter": {
+      "heading": "انضمّي إلى الطقس",
+      "body": "وصول مبكر، إطلالات هادئة، وملاحظات عن بشرتكِ تستحق القراءة.",
+      "placeholder": "بريدكِ الإلكتروني",
+      "submit": "اشتراك",
+      "privacy": "بالاشتراك، أنتِ توافقين على تلقّي رسائل تسويقية. يمكنكِ إلغاء الاشتراك في أي وقت.",
+      "success": "شكراً لكِ — تم تسجيلكِ."
+    },
+    "password": {
+      "heading": "شيءٌ مدروس في طريقه إليكِ.",
+      "body": "صنايا تستعدّ للانطلاق. اتركي بريدكِ الإلكتروني لتحصلي على وصول مبكر.",
+      "login_form_heading": "الدخول بكلمة المرور"
+    }
+  },
+  "accessibility": {
+    "skip_to_content": "تخطّي إلى المحتوى",
+    "close": "إغلاق",
+    "menu": "القائمة",
+    "cart": "السلة",
+    "search": "بحث",
+    "account": "الحساب",
+    "next_slide": "التالي",
+    "previous_slide": "السابق",
+    "load_more": "عرض المزيد"
+  },
+  "header": {
+    "announcement_default": "توصيل مجاني للطلبات فوق {{ amount }} · طقسٌ مدروس، يصل إليكِ",
+    "shop": "تسوّقي",
+    "skincare": "العناية بالبشرة",
+    "beauty": "الجمال",
+    "wellness": "العافية",
+    "about": "من نحن",
+    "journal": "المدوّنة",
+    "view_all": "عرض الكل",
+    "explore": "اكتشفي"
+  },
+  "products": {
+    "product": {
+      "add_to_cart": "أضيفي إلى الحقيبة",
+      "sold_out": "نفدت الكمية",
+      "unavailable": "غير متوفر",
+      "quick_add": "إضافة سريعة",
+      "quantity": "الكمية",
+      "view_details": "عرض التفاصيل",
+      "regular_price": "السعر الأساسي",
+      "sale_price": "سعر التخفيض",
+      "from_price": "يبدأ من",
+      "details": "التفاصيل",
+      "ingredients": "المكوّنات",
+      "how_to_use": "طريقة الاستخدام",
+      "shipping_returns": "الشحن والإرجاع",
+      "shipping_returns_body": "توصيل مجاني للطلبات فوق {{ amount }}. إرجاع مدروس خلال 30 يوماً.",
+      "pairs_well": "يُكمّل الطقس",
+      "choose_options": "اختاري الخيارات"
+    }
+  },
+  "collections": {
+    "general": {
+      "all_products": "جميع المنتجات",
+      "no_products": "لا توجد منتجات في هذه المجموعة.",
+      "sort_by": "الترتيب",
+      "filter_by": "تصفية",
+      "clear_all": "مسح الكل",
+      "results_for": "{{ count }} منتج"
+    }
+  },
+  "cart": {
+    "general": {
+      "title": "حقيبتكِ",
+      "empty": "حقيبتكِ هادئة، في الوقت الراهن.",
+      "empty_body": "أضيفي إليها شيئاً مدروساً لتبدأي.",
+      "continue_shopping": "متابعة التسوّق",
+      "subtotal": "المجموع الفرعي",
+      "checkout": "إتمام الشراء",
+      "remove": "إزالة",
+      "note": "ملاحظة على الطلب",
+      "free_shipping_reached": "لقد حصلتِ على توصيل مجاني.",
+      "free_shipping_remaining": "تبقّى {{ amount }} لتحصلي على توصيل مجاني."
+    }
+  },
+  "blogs": {
+    "article": {
+      "read_more": "قراءة المقال",
+      "back_to_journal": "العودة إلى المدوّنة"
+    }
+  },
+  "404": {
+    "title": "هذه الصفحة ابتعدت قليلاً",
+    "body": "لم نتمكّن من إيجاد الصفحة التي تبحثين عنها. دعينا نعيدكِ إلى مكانٍ أكثر هدوءاً.",
+    "link": "العودة إلى الرئيسية"
+  },
+  "contact": {
+    "form": {
+      "name": "الاسم",
+      "email": "البريد الإلكتروني",
+      "message": "الرسالة",
+      "submit": "إرسال الرسالة",
+      "success": "شكراً لكِ — سنتواصل معكِ قريباً."
+    }
+  },
+  "footer": {
+    "shop": "تسوّقي",
+    "about": "من نحن",
+    "help": "المساعدة",
+    "contact": "تواصلي معنا",
+    "rights": "جميع الحقوق محفوظة."
+  },
+  "localization": {
+    "language_label": "اللغة",
+    "arabic": "العربية",
+    "english": "English"
+  }
+}

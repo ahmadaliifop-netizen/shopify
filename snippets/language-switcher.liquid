@@ -1,0 +1,24 @@
+{%- comment -%}
+  Usage: {% render 'language-switcher', context: 'header' %}
+  Renders a quiet AR/EN toggle using Shopify's localization form.
+  No-ops if the store only has one published language.
+{%- endcomment -%}
+{%- if localization.available_languages.size > 1 -%}
+  {%- assign form_id = 'LanguageForm-' | append: context -%}
+  <div class="lang-switch" role="group" aria-label="{{ 'localization.language_label' | t }}">
+    {%- form 'localization', id: form_id -%}
+      <input type="hidden" name="return_to" value="{{ request.path }}">
+      {%- for language in localization.available_languages -%}
+        <button
+          type="submit"
+          name="locale_code"
+          value="{{ language.iso_code }}"
+          class="lang-switch__option{% if language.iso_code == localization.language.iso_code %} is-current{% endif %}"
+          {%- if language.iso_code == localization.language.iso_code %} aria-current="true"{% endif %}
+          lang="{{ language.iso_code }}">
+          {{- language.iso_code | upcase -}}
+        </button>
+      {%- endfor -%}
+    {%- endform -%}
+  </div>
+{%- endif -%}

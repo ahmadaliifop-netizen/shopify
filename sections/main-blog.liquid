@@ -21,11 +21,11 @@
     </div>
     {%- if paginate.pages > 1 -%}
       <nav class="pagination" aria-label="Pagination">
-        {%- if paginate.previous -%}<a href="{{ paginate.previous.url }}">←</a>{%- endif -%}
+        {%- if paginate.previous -%}<a href="{{ paginate.previous.url }}" class="pagination__arrow pagination__arrow--prev">←</a>{%- endif -%}
         {%- for part in paginate.parts -%}
           {%- if part.is_link -%}<a href="{{ part.url }}">{{ part.title }}</a>{%- else -%}<span class="is-current">{{ part.title }}</span>{%- endif -%}
         {%- endfor -%}
-        {%- if paginate.next -%}<a href="{{ paginate.next.url }}">→</a>{%- endif -%}
+        {%- if paginate.next -%}<a href="{{ paginate.next.url }}" class="pagination__arrow pagination__arrow--next">→</a>{%- endif -%}
       </nav>
     {%- endif -%}
   {%- endpaginate -%}

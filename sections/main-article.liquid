@@ -14,7 +14,7 @@
 <div class="container section section--tight">
   <div class="prose">{{ article.content }}</div>
   <div class="prose" style="margin-top:56px;">
-    <a href="{{ blog.url }}" class="text-link">{% render 'icon', name: 'arrow-right', size: 14 %} {{ 'blogs.article.back_to_journal' | t }}</a>
+    <a href="{{ blog.url }}" class="text-link"><span style="display:inline-block; transform:scaleX(-1);">{% render 'icon', name: 'arrow-right', size: 14 %}</span> {{ 'blogs.article.back_to_journal' | t }}</a>
   </div>
 </div>
 

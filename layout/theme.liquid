@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="{{ request.locale.iso_code }}" data-theme="sanaya">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="{{ settings.color_ink }}">
+  <title>
+    {{ page_title }}{% if current_tags %} &ndash; tagged "{{ current_tags | join: ', ' }}"{% endif %}{% if current_page != 1 %} &ndash; Page {{ current_page }}{% endif %}{% unless page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless %}
+  </title>
+  {% if page_description %}<meta name="description" content="{{ page_description | escape }}">{% endif %}
+  <link rel="canonical" href="{{ canonical_url }}">
+  {% if settings.favicon %}
+    <link rel="icon" type="image/png" href="{{ settings.favicon | image_url: width: 64 }}">
+  {% endif %}
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,460;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&display=swap">
+
+  {{ content_for_header }}
+  {{ 'theme.css' | asset_url | stylesheet_tag }}
+
+  <style>
+    :root{
+      --color-bg: {{ settings.color_background }};
+      --color-bg-alt: {{ settings.color_background_alt }};
+      --color-ink: {{ settings.color_ink }};
+      --color-ink-hover: {{ settings.color_ink_hover }};
+      --color-muted: {{ settings.color_muted }};
+      --color-hairline: {{ settings.color_hairline }};
+      --color-surface: {{ settings.color_surface }};
+      --color-accent: {{ settings.color_accent }};
+      --page-max: {{ settings.page_width }}px;
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#MainContent">{{ 'accessibility.skip_to_content' | t }}</a>
+
+  <div class="js-overlay overlay"></div>
+
+  {% section 'announcement-bar' %}
+  {% section 'header' %}
+
+  <main id="MainContent">
+    {{ content_for_layout }}
+  </main>
+
+  {% section 'footer' %}
+
+  {% render 'cart-drawer' %}
+
+  <script>
+    window.SANAYA_ROUTES = {
+      cart_add: {{ routes.cart_add_url | json }},
+      cart_change: {{ routes.cart_change_url | json }},
+      cart: {{ routes.cart_url | json }}
+    };
+  </script>
+  <script src="{{ 'theme.js' | asset_url }}" defer></script>
+</body>
+</html>

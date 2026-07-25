@@ -1,0 +1,27 @@
+{
+  "current": {
+    "logo_width": 148,
+    "color_background": "#F7F4ED",
+    "color_background_alt": "#FBF9F3",
+    "color_ink": "#2D515F",
+    "color_ink_hover": "#23414C",
+    "color_muted": "#5C7681",
+    "color_hairline": "#E4DFD3",
+    "color_surface": "#FFFFFF",
+    "color_accent": "#D8A48F",
+    "font_heading_family": "fraunces",
+    "font_body_family": "inter",
+    "page_width": 1360,
+    "cart_type": "drawer",
+    "free_shipping_threshold": 75,
+    "color_palette": {
+      "background": "#F7F4ED",
+      "foreground": "#2D515F",
+      "color1": "#5C7681",
+      "color2": "#E4DFD3"
+    }
+  },
+  "presets": {
+    "SANAYA": {}
+  }
+}

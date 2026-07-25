@@ -1,0 +1,50 @@
+<div class="value-strip" style="border-top:1px solid var(--color-hairline); border-bottom:1px solid var(--color-hairline);">
+  <div class="container" style="padding-inline:0;">
+    <div class="value-strip__inner" data-reveal>
+      {%- for block in section.blocks -%}
+        <div class="value-strip__item" {{ block.shopify_attributes }}>
+          {% render 'icon', name: block.settings.icon, size: 20 %}
+          <span>{{ block.settings.text }}</span>
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Value strip",
+  "blocks": [
+    {
+      "type": "item",
+      "name": "Item",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "default": "leaf",
+          "options": [
+            { "value": "leaf", "label": "Leaf" },
+            { "value": "shield", "label": "Shield" },
+            { "value": "heart", "label": "Heart" },
+            { "value": "truck", "label": "Truck" },
+            { "value": "sparkle", "label": "Sparkle" },
+            { "value": "droplet", "label": "Droplet" }
+          ]
+        },
+        { "type": "text", "id": "text", "label": "Text", "default": "Clean formulas" }
+      ]
+    }
+  ],
+  "default": {
+    "blocks": [
+      { "type": "item", "settings": { "icon": "leaf", "text": "Clean formulas" } },
+      { "type": "item", "settings": { "icon": "heart", "text": "Cruelty-free" } },
+      { "type": "item", "settings": { "icon": "shield", "text": "Dermatologist-loved" } },
+      { "type": "item", "settings": { "icon": "truck", "text": "Free delivery over $75" } }
+    ]
+  },
+  "presets": [{ "name": "Value strip" }]
+}
+{% endschema %}

@@ -1,0 +1,44 @@
+<div class="page-hero container">
+  <p class="eyebrow">{{ 'accessibility.search' | t }}</p>
+  <form action="{{ routes.search_url }}" method="get" role="search" class="input-row" style="margin-inline:auto;">
+    <input class="field" type="search" name="q" value="{{ search.terms | escape }}" placeholder="{{ 'general.search.placeholder' | t }}" aria-label="{{ 'general.search.placeholder' | t }}">
+    <button type="submit" class="btn btn--primary">{{ 'general.search.submit' | t }}</button>
+    <input type="hidden" name="type" value="product">
+  </form>
+  {%- if search.performed -%}
+    <p class="text-muted">
+      {%- if search.results_count > 0 -%}
+        {{ 'general.search.results_count' | t: count: search.results_count, terms: search.terms }}
+      {%- else -%}
+        {{ 'general.search.no_results' | t: terms: search.terms }}
+      {%- endif -%}
+    </p>
+  {%- endif -%}
+</div>
+
+{%- if search.performed and search.results_count > 0 -%}
+  <div class="container section section--tight">
+    <div class="grid grid--4">
+      {%- for item in search.results -%}
+        {%- if item.object_type == 'product' -%}
+          {% render 'product-card', product: item %}
+        {%- else -%}
+          <a href="{{ item.url }}" class="article-card">
+            <div class="media media--landscape media--zoom">
+              {%- if item.image -%}
+                <img src="{{ item.image | image_url: width: 800 }}" alt="" loading="lazy" width="800" height="600">
+              {%- else -%}
+                <div class="media__placeholder">{% render 'icon', name: 'image', size: 36 %}</div>
+              {%- endif -%}
+            </div>
+            <h3 class="h4 article-card__title">{{ item.title }}</h3>
+          </a>
+        {%- endif -%}
+      {%- endfor -%}
+    </div>
+  </div>
+{%- endif -%}
+
+{% schema %}
+{ "name": "Search page", "settings": [] }
+{% endschema %}

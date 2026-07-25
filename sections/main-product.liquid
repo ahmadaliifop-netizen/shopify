@@ -1,0 +1,195 @@
+{%- assign current_variant = product.selected_or_first_available_variant -%}
+<div class="container section section--tight">
+  <div class="pdp">
+    <div class="pdp__gallery" data-gallery>
+      <div class="media media--portrait" data-gallery-main>
+        {%- if product.featured_image != blank -%}
+          <img
+            src="{{ product.featured_image | image_url: width: 1200 }}"
+            alt="{{ product.featured_image.alt | escape }}"
+            width="1200" height="1500"
+            loading="eager" fetchpriority="high">
+        {%- else -%}
+          <div class="media__placeholder">{% render 'icon', name: 'image', size: 56 %}</div>
+        {%- endif -%}
+      </div>
+      {%- if product.images.size > 1 -%}
+        <div class="pdp__thumbs">
+          {%- for image in product.images limit: 6 -%}
+            <button type="button" class="pdp__thumb media media--square{% if forloop.first %} is-active{% endif %}" data-gallery-thumb data-full="{{ image | image_url: width: 1200 }}" aria-label="View image {{ forloop.index }}">
+              <img src="{{ image | image_url: width: 200 }}" alt="" width="200" height="200" loading="lazy">
+            </button>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    </div>
+
+    <div class="pdp__info">
+      <p class="eyebrow">{{ product.vendor | default: "SANAYA" }}</p>
+      <h1 class="pdp__title h2">{{ product.title }}</h1>
+      <div class="pdp__price" data-product-price>{% render 'price', product: product %}</div>
+      {%- if section.settings.benefit_line != blank -%}
+        <p class="pdp__benefit">{{ section.settings.benefit_line }}</p>
+      {%- endif -%}
+
+      <form data-cart-add-form data-pdp-form>
+        {%- for option in product.options_with_values -%}
+          <div class="field-group" data-swatch-group="{{ option.name | handle }}">
+            <span class="field-label">{{ option.name }}</span>
+            <div class="swatches">
+              {%- for value in option.values -%}
+                <button type="button" class="swatch{% if value == option.selected_value %} is-selected{% endif %}" data-value="{{ value | escape }}">{{ value }}</button>
+              {%- endfor -%}
+            </div>
+            <input type="hidden" name="option-{{ option.name | handle }}" value="{{ option.selected_value }}">
+          </div>
+        {%- endfor -%}
+
+        <div class="pdp__form-row">
+          <div class="qty-stepper" data-qty-stepper>
+            <button type="button" data-action="decrease" aria-label="Decrease quantity">{% render 'icon', name: 'minus', size: 14 %}</button>
+            <input type="text" name="quantity" value="1" min="1" step="1" inputmode="numeric" aria-label="{{ 'products.product.quantity' | t }}">
+            <button type="button" data-action="increase" aria-label="Increase quantity">{% render 'icon', name: 'plus', size: 14 %}</button>
+          </div>
+          <input type="hidden" name="id" value="{{ current_variant.id }}" data-variant-id>
+          <button type="submit" class="btn btn--primary" style="flex:1;" {% unless current_variant.available %}disabled{% endunless %} data-add-to-cart-btn>
+            {%- if current_variant.available -%}{{ 'products.product.add_to_cart' | t }}{%- else -%}{{ 'products.product.sold_out' | t }}{%- endif -%}
+          </button>
+        </div>
+      </form>
+
+      <div class="accordion">
+        {%- if product.description != blank -%}
+          <div class="accordion__item">
+            <button class="accordion__trigger" aria-expanded="true" aria-controls="acc-details-{{ product.id }}">
+              {{ 'products.product.details' | t }} {% render 'icon', name: 'plus', size: 16 %}
+            </button>
+            <div class="accordion__panel" id="acc-details-{{ product.id }}" style="max-height:400px;">
+              <div class="accordion__panel-inner">{{ product.description }}</div>
+            </div>
+          </div>
+        {%- endif -%}
+        {%- if section.settings.ingredients != blank -%}
+          <div class="accordion__item">
+            <button class="accordion__trigger" aria-expanded="false" aria-controls="acc-ingredients-{{ product.id }}">
+              {{ 'products.product.ingredients' | t }} {% render 'icon', name: 'plus', size: 16 %}
+            </button>
+            <div class="accordion__panel" id="acc-ingredients-{{ product.id }}">
+              <div class="accordion__panel-inner">{{ section.settings.ingredients }}</div>
+            </div>
+          </div>
+        {%- endif -%}
+        {%- if section.settings.how_to_use != blank -%}
+          <div class="accordion__item">
+            <button class="accordion__trigger" aria-expanded="false" aria-controls="acc-how-{{ product.id }}">
+              {{ 'products.product.how_to_use' | t }} {% render 'icon', name: 'plus', size: 16 %}
+            </button>
+            <div class="accordion__panel" id="acc-how-{{ product.id }}">
+              <div class="accordion__panel-inner">{{ section.settings.how_to_use }}</div>
+            </div>
+          </div>
+        {%- endif -%}
+        <div class="accordion__item">
+          <button class="accordion__trigger" aria-expanded="false" aria-controls="acc-shipping-{{ product.id }}">
+            {{ 'products.product.shipping_returns' | t }} {% render 'icon', name: 'plus', size: 16 %}
+          </button>
+          <div class="accordion__panel" id="acc-shipping-{{ product.id }}">
+            {%- capture threshold_amount -%}${{ settings.free_shipping_threshold }}{%- endcapture -%}
+            <div class="accordion__panel-inner">{{ 'products.product.shipping_returns_body' | t: amount: threshold_amount }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pdp__trust">
+        <span class="pdp__trust-item">{% render 'icon', name: 'leaf', size: 16 %} Clean formulas</span>
+        <span class="pdp__trust-item">{% render 'icon', name: 'heart', size: 16 %} Cruelty-free</span>
+        <span class="pdp__trust-item">{% render 'icon', name: 'truck', size: 16 %} Free delivery over ${{ settings.free_shipping_threshold }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+{%- if section.settings.related_collection != blank -%}
+<div class="section section--tight section--alt">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-head__text">
+        <p class="eyebrow">{{ 'products.product.pairs_well' | t }}</p>
+        <h2>Complete the ritual</h2>
+      </div>
+    </div>
+    <div class="rail">
+      {%- for related in section.settings.related_collection.products limit: 6 -%}
+        {%- unless related.id == product.id -%}
+          {% render 'product-card', product: related %}
+        {%- endunless -%}
+      {%- endfor -%}
+    </div>
+  </div>
+</div>
+{%- endif -%}
+
+<div class="pdp__sticky-bar">
+  <span style="font-size:14px; font-weight:500;">{{ product.title }} · {% render 'price', product: product %}</span>
+  <button type="button" class="btn btn--primary btn--sm" onclick="document.querySelector('[data-pdp-form]').requestSubmit();">{{ 'products.product.add_to_cart' | t }}</button>
+</div>
+
+<script type="application/json" data-product-json>{{ product.json }}</script>
+<script>
+  (function () {
+    var dataEl = document.currentScript.previousElementSibling;
+    var product = JSON.parse(dataEl.textContent);
+    var form = document.querySelector('[data-pdp-form]');
+    if (!form) return;
+    var variantIdInput = form.querySelector('[data-variant-id]');
+    var priceEl = document.querySelector('[data-product-price]');
+    var addBtn = form.querySelector('[data-add-to-cart-btn]');
+
+    function selectedOptions() {
+      return Array.prototype.map.call(form.querySelectorAll('[data-swatch-group]'), function (group) {
+        return group.querySelector('input[type="hidden"]').value;
+      });
+    }
+
+    function findVariant() {
+      var opts = selectedOptions();
+      return product.variants.find(function (v) {
+        return v.options.every(function (o, i) { return o === opts[i]; });
+      });
+    }
+
+    function money(cents) { return '$' + (cents / 100).toFixed(2); }
+
+    function updateForVariant(variant) {
+      if (!variant) return;
+      variantIdInput.value = variant.id;
+      if (priceEl) {
+        priceEl.innerHTML = variant.compare_at_price && variant.compare_at_price > variant.price
+          ? '<span class="price__compare">' + money(variant.compare_at_price) + '</span><span class="price__sale">' + money(variant.price) + '</span>'
+          : '<span>' + money(variant.price) + '</span>';
+      }
+      if (addBtn) {
+        addBtn.disabled = !variant.available;
+        addBtn.textContent = variant.available ? {{ 'products.product.add_to_cart' | t | json }} : {{ 'products.product.sold_out' | t | json }};
+      }
+    }
+
+    form.addEventListener('click', function (e) {
+      var swatch = e.target.closest('.swatch');
+      if (!swatch) return;
+      setTimeout(function () { updateForVariant(findVariant()); }, 0);
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Product page",
+  "settings": [
+    { "type": "text", "id": "benefit_line", "label": "Short benefit line", "default": "A daily ritual for calmer, balanced skin." },
+    { "type": "textarea", "id": "ingredients", "label": "Ingredients" },
+    { "type": "textarea", "id": "how_to_use", "label": "How to use" },
+    { "type": "collection", "id": "related_collection", "label": "\"Pairs well with\" collection" }
+  ]
+}
+{% endschema %}

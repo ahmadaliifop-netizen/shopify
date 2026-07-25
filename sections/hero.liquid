@@ -1,0 +1,48 @@
+<div class="hero{% if section.settings.image == blank %} hero--no-image{% endif %}">
+  {%- if section.settings.image != blank -%}
+    <div class="hero__media">
+      <img
+        src="{{ section.settings.image | image_url: width: 2000 }}"
+        srcset="{{ section.settings.image | image_url: width: 800 }} 800w, {{ section.settings.image | image_url: width: 1400 }} 1400w, {{ section.settings.image | image_url: width: 2000 }} 2000w"
+        sizes="100vw"
+        alt="{{ section.settings.image.alt | escape }}"
+        width="{{ section.settings.image.width }}"
+        height="{{ section.settings.image.height }}"
+        loading="eager"
+        fetchpriority="high">
+    </div>
+    <div class="hero__scrim"></div>
+  {%- endif -%}
+  <div class="hero__content" data-reveal>
+    <p class="eyebrow hero__eyebrow">{{ section.settings.eyebrow | default: "SANAYA · Health and Beauty" }}</p>
+    <h1 class="h1">{{ section.settings.heading | default: "Everyday rituals for skin that feels like you." }}</h1>
+    {%- if section.settings.subheading != blank -%}
+      <p class="text-lede">{{ section.settings.subheading }}</p>
+    {%- endif -%}
+    <div class="hero__actions">
+      {%- if section.settings.button_label != blank -%}
+        <a href="{{ section.settings.button_link }}" class="btn btn--on-ink">{{ section.settings.button_label }}</a>
+      {%- endif -%}
+      {%- if section.settings.link_label != blank -%}
+        <a href="{{ section.settings.link_link }}" class="text-link" style="color:inherit;">{{ section.settings.link_label }} {% render 'icon', name: 'arrow-right' %}</a>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Hero",
+  "settings": [
+    { "type": "image_picker", "id": "image", "label": "Image" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "SANAYA · Health and Beauty" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Everyday rituals for skin that feels like you." },
+    { "type": "textarea", "id": "subheading", "label": "Subheading", "default": "Clean, considered health & beauty essentials — chosen for how they make you feel." },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "Shop the essentials" },
+    { "type": "url", "id": "button_link", "label": "Button link" },
+    { "type": "text", "id": "link_label", "label": "Secondary link label", "default": "Our story" },
+    { "type": "url", "id": "link_link", "label": "Secondary link" }
+  ],
+  "presets": [{ "name": "Hero" }]
+}
+{% endschema %}

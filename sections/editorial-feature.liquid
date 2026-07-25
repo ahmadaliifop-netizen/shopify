@@ -1,0 +1,61 @@
+<div class="section section--tight">
+  <div class="container">
+    <div class="editorial" data-reveal>
+      <div class="editorial__media media media--wide">
+        {%- if section.settings.image != blank -%}
+          <img src="{{ section.settings.image | image_url: width: 1800 }}" alt="{{ section.settings.image.alt | escape }}" loading="lazy" width="1800" height="1013">
+        {%- else -%}
+          <div class="media__placeholder">{% render 'icon', name: 'image', size: 48 %}</div>
+        {%- endif -%}
+      </div>
+      <div class="editorial__panel">
+        <p class="eyebrow">{{ section.settings.eyebrow | default: "How to layer" }}</p>
+        <h3>{{ section.settings.heading | default: "Build your ritual" }}</h3>
+        <div class="editorial__steps">
+          {%- for block in section.blocks -%}
+            <div class="editorial__step" {{ block.shopify_attributes }}>
+              <div>
+                <p style="font-weight:500;">{{ block.settings.title }}</p>
+                <p class="text-muted" style="font-size:14px; margin-top:4px;">{{ block.settings.text }}</p>
+              </div>
+            </div>
+          {%- endfor -%}
+        </div>
+        {%- if section.settings.button_label != blank -%}
+          <a href="{{ section.settings.button_link }}" class="text-link">{{ section.settings.button_label }} {% render 'icon', name: 'arrow-right' %}</a>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Editorial feature",
+  "settings": [
+    { "type": "image_picker", "id": "image", "label": "Image" },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "How to layer" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Build your ritual" },
+    { "type": "text", "id": "button_label", "label": "Link label", "default": "Shop the ritual" },
+    { "type": "url", "id": "button_link", "label": "Link" }
+  ],
+  "blocks": [
+    {
+      "type": "step",
+      "name": "Step",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Title", "default": "Cleanse" },
+        { "type": "text", "id": "text", "label": "Text", "default": "Start with a gentle, non-stripping cleanse." }
+      ]
+    }
+  ],
+  "default": {
+    "blocks": [
+      { "type": "step", "settings": { "title": "Cleanse", "text": "Start with a gentle, non-stripping cleanse." } },
+      { "type": "step", "settings": { "title": "Nourish", "text": "Layer a serum suited to how your skin feels today." } },
+      { "type": "step", "settings": { "title": "Seal", "text": "Finish with a moisturiser to lock it all in." } }
+    ]
+  },
+  "presets": [{ "name": "Editorial feature" }]
+}
+{% endschema %}

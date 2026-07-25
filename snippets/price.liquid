@@ -1,0 +1,11 @@
+{%- comment -%} Usage: {% render 'price', product: product %} {%- endcomment -%}
+<span class="price">
+  {%- if product.compare_at_price > product.price -%}
+    <span class="price__compare">{{ product.compare_at_price | money }}</span>
+    <span class="price__sale">{{ product.price | money }}</span>
+  {%- elsif product.price_varies -%}
+    <span>{{ 'products.product.from_price' | t }} {{ product.price_min | money }}</span>
+  {%- else -%}
+    <span>{{ product.price | money }}</span>
+  {%- endif -%}
+</span>

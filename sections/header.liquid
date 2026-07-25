@@ -1,0 +1,120 @@
+<header class="site-header" data-header>
+  <div class="site-header__inner">
+    <button class="icon-btn site-header__hamburger" data-open-panel="mobile-menu" aria-label="{{ 'accessibility.menu' | t }}">
+      {% render 'icon', name: 'menu', size: 22 %}
+    </button>
+
+    <nav class="site-header__nav" aria-label="Main">
+      {%- for link in section.settings.main_menu.links -%}
+        <div class="nav-item">
+          <a href="{{ link.url }}" class="site-header__nav-link">{{ link.title }}</a>
+          {%- if link.links.size > 0 -%}
+            <div class="mega-menu">
+              <div class="mega-menu__inner">
+                {%- for childlink in link.links limit: 3 -%}
+                  <div class="mega-menu__col">
+                    <p class="mega-menu__col-title">{{ childlink.title }}</p>
+                    <ul>
+                      {%- for grandchild in childlink.links -%}
+                        <li><a class="mega-menu__link" href="{{ grandchild.url }}">{{ grandchild.title }}</a></li>
+                      {%- else -%}
+                        <li><a class="mega-menu__link" href="{{ childlink.url }}">{{ 'header.view_all' | t }}</a></li>
+                      {%- endfor -%}
+                    </ul>
+                  </div>
+                {%- endfor -%}
+                <div class="mega-menu__feature">
+                  <div class="media media--portrait">
+                    {% if section.settings.menu_feature_image %}
+                      <img src="{{ section.settings.menu_feature_image | image_url: width: 600 }}" alt="" loading="lazy" width="600" height="750">
+                    {% else %}
+                      <div class="media__placeholder">{% render 'icon', name: 'image', size: 40 %}</div>
+                    {% endif %}
+                  </div>
+                  <a href="{{ link.url }}" class="text-link" style="margin-top:14px;">{{ 'header.explore' | t }} {% render 'icon', name: 'arrow-right' %}</a>
+                </div>
+              </div>
+            </div>
+          {%- endif -%}
+        </div>
+      {%- endfor -%}
+    </nav>
+
+    <a href="{{ routes.root_url }}" class="site-header__logo" aria-label="{{ shop.name }}">
+      {%- if settings.logo -%}
+        <img
+          src="{{ settings.logo | image_url: width: settings.logo_width | times: 2 }}"
+          alt="{{ shop.name }}"
+          width="{{ settings.logo_width }}"
+          style="width: {{ settings.logo_width }}px;"
+          loading="eager">
+      {%- else -%}
+        <span class="site-header__logo-text">SANAYA</span>
+        <span class="site-header__logo-sub">Health and Beauty</span>
+      {%- endif -%}
+    </a>
+
+    <div class="site-header__actions">
+      <button class="icon-btn" data-open-panel="header-search" aria-label="{{ 'accessibility.search' | t }}">
+        {% render 'icon', name: 'search' %}
+      </button>
+      <a href="{{ routes.account_url }}" class="icon-btn" aria-label="{{ 'accessibility.account' | t }}">
+        {% render 'icon', name: 'account' %}
+      </a>
+      <button class="icon-btn" data-open-panel="cart-drawer" aria-label="{{ 'accessibility.cart' | t }}">
+        {% render 'icon', name: 'cart' %}
+        <span class="icon-btn__count" data-cart-count {% if cart.item_count == 0 %}hidden{% endif %}>{{ cart.item_count }}</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div id="mobile-menu" class="mobile-menu" data-panel hidden>
+  <div class="mobile-menu__header">
+    <span class="site-header__logo-text">SANAYA</span>
+    <button class="icon-btn" data-close-panel aria-label="{{ 'accessibility.close' | t }}">
+      {% render 'icon', name: 'close' %}
+    </button>
+  </div>
+  <ul class="mobile-menu__list">
+    {%- for link in section.settings.main_menu.links -%}
+      <li><a class="mobile-menu__link" href="{{ link.url }}">{{ link.title }}</a></li>
+    {%- endfor -%}
+    <li><a class="mobile-menu__link" href="{{ routes.account_url }}">{{ 'accessibility.account' | t }}</a></li>
+  </ul>
+</div>
+
+<div id="header-search" class="mobile-menu" data-panel hidden style="width:min(520px,100%);">
+  <div class="mobile-menu__header">
+    <span class="eyebrow">{{ 'accessibility.search' | t }}</span>
+    <button class="icon-btn" data-close-panel aria-label="{{ 'accessibility.close' | t }}">
+      {% render 'icon', name: 'close' %}
+    </button>
+  </div>
+  <form action="{{ routes.search_url }}" method="get" role="search" class="mobile-menu__list">
+    <div class="input-row" style="max-width:none;">
+      <input class="field" type="search" name="q" value="{{ search.terms | escape }}" placeholder="{{ 'general.search.placeholder' | t }}" aria-label="{{ 'general.search.placeholder' | t }}">
+      <button type="submit" class="btn btn--primary">{{ 'general.search.submit' | t }}</button>
+    </div>
+    <input type="hidden" name="type" value="product">
+  </form>
+</div>
+
+{% schema %}
+{
+  "name": "Header",
+  "settings": [
+    {
+      "type": "link_list",
+      "id": "main_menu",
+      "label": "Menu",
+      "default": "main-menu"
+    },
+    {
+      "type": "image_picker",
+      "id": "menu_feature_image",
+      "label": "Mega menu feature image"
+    }
+  ]
+}
+{% endschema %}

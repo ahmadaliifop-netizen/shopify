@@ -1,0 +1,73 @@
+<footer class="site-footer">
+  <div class="container site-footer__top">
+    <div class="site-footer__brand">
+      {%- if settings.logo_inverse -%}
+        <img src="{{ settings.logo_inverse | image_url: width: 160 }}" alt="{{ shop.name }}" width="140" style="width:140px;" loading="lazy">
+      {%- else -%}
+        <span class="site-header__logo-text" style="color: var(--color-bg);">SANAYA</span>
+      {%- endif -%}
+      <p>{{ section.settings.brand_text | default: "Considered self-care, made simple. A calm edit of skincare, beauty and wellness." }}</p>
+      <div class="site-footer__socials">
+        {%- if settings.social_instagram != blank -%}<a href="{{ settings.social_instagram }}" aria-label="Instagram">{% render 'icon', name: 'instagram' %}</a>{%- endif -%}
+        {%- if settings.social_tiktok != blank -%}<a href="{{ settings.social_tiktok }}" aria-label="TikTok">{% render 'icon', name: 'tiktok' %}</a>{%- endif -%}
+        {%- if settings.social_facebook != blank -%}<a href="{{ settings.social_facebook }}" aria-label="Facebook">{% render 'icon', name: 'facebook' %}</a>{%- endif -%}
+        {%- if settings.social_pinterest != blank -%}<a href="{{ settings.social_pinterest }}" aria-label="Pinterest">{% render 'icon', name: 'pinterest' %}</a>{%- endif -%}
+      </div>
+    </div>
+
+    {%- for block in section.blocks -%}
+      {%- if block.type == 'link_column' -%}
+        <div class="site-footer__col" {{ block.shopify_attributes }}>
+          <p class="site-footer__col-title">{{ block.settings.title }}</p>
+          {%- for link in block.settings.menu.links -%}
+            <a href="{{ link.url }}">{{ link.title }}</a>
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+
+  <div class="container">
+    <hr class="hairline" style="border-color: rgba(247,244,237,0.15);">
+  </div>
+
+  <div class="container site-footer__bottom">
+    <span>&copy; {{ 'now' | date: '%Y' }} {{ shop.name }}. {{ 'footer.rights' | t }}</span>
+    <div class="site-footer__payments">
+      {%- for type in shop.enabled_payment_types -%}
+        {{ type | payment_type_svg_tag: class: 'payment-icon' }}
+      {%- endfor -%}
+    </div>
+  </div>
+</footer>
+
+{% schema %}
+{
+  "name": "Footer",
+  "settings": [
+    {
+      "type": "textarea",
+      "id": "brand_text",
+      "label": "Brand statement",
+      "default": "Considered self-care, made simple. A calm edit of skincare, beauty and wellness."
+    }
+  ],
+  "blocks": [
+    {
+      "type": "link_column",
+      "name": "Link column",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Heading", "default": "Shop" },
+        { "type": "link_list", "id": "menu", "label": "Menu" }
+      ]
+    }
+  ],
+  "default": {
+    "blocks": [
+      { "type": "link_column", "settings": { "title": "Shop" } },
+      { "type": "link_column", "settings": { "title": "About" } },
+      { "type": "link_column", "settings": { "title": "Help" } }
+    ]
+  }
+}
+{% endschema %}

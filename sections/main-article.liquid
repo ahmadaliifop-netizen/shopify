@@ -1,0 +1,23 @@
+<div class="page-hero container">
+  <p class="eyebrow">{{ article.published_at | date: '%B %d, %Y' }}{% if article.tags.size > 0 %} · {{ article.tags | join: ', ' }}{% endif %}</p>
+  <h1 class="h1">{{ article.title }}</h1>
+</div>
+
+{%- if article.image -%}
+  <div class="container">
+    <div class="media media--wide">
+      <img src="{{ article.image | image_url: width: 1800 }}" alt="{{ article.image.alt | escape }}" width="1800" height="1013" loading="eager">
+    </div>
+  </div>
+{%- endif -%}
+
+<div class="container section section--tight">
+  <div class="prose">{{ article.content }}</div>
+  <div class="prose" style="margin-top:56px;">
+    <a href="{{ blog.url }}" class="text-link">{% render 'icon', name: 'arrow-right', size: 14 %} {{ 'blogs.article.back_to_journal' | t }}</a>
+  </div>
+</div>
+
+{% schema %}
+{ "name": "Article page", "settings": [] }
+{% endschema %}

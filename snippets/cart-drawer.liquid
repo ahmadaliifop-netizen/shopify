@@ -1,0 +1,50 @@
+{%- comment -%} Slide-out cart drawer, populated via AJAX by theme.js {%- endcomment -%}
+<div
+  id="cart-drawer"
+  class="cart-drawer"
+  data-panel
+  data-free-shipping-threshold="{{ settings.free_shipping_threshold }}"
+  role="dialog"
+  aria-modal="true"
+  aria-label="{{ 'cart.general.title' | t }}"
+  hidden
+>
+  <div class="cart-drawer__header">
+    <h2 class="h3">{{ 'cart.general.title' | t }}</h2>
+    <button class="icon-btn" data-close-panel aria-label="{{ 'accessibility.close' | t }}">
+      {% render 'icon', name: 'close' %}
+    </button>
+  </div>
+
+  {% if settings.free_shipping_threshold > 0 %}
+  <div class="cart-drawer__shipping">
+    <p class="text-muted" style="font-size:13px;" data-shipping-text
+       data-reached="{{ 'cart.general.free_shipping_reached' | t }}"
+       data-remaining-template="{{ 'cart.general.free_shipping_remaining' | t: amount: '{amount}' }}">
+      {%- capture threshold_amount -%}${{ settings.free_shipping_threshold }}{%- endcapture -%}
+    {{ 'cart.general.free_shipping_remaining' | t: amount: threshold_amount }}
+    </p>
+    <div class="cart-drawer__shipping-bar">
+      <div class="cart-drawer__shipping-fill" data-shipping-fill style="width:0%;"></div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="cart-drawer__body" data-cart-drawer-body>
+    <template data-cart-empty-template>
+      <div class="cart-drawer__empty">
+        <p class="h4">{{ 'cart.general.empty' | t }}</p>
+        <p class="text-muted">{{ 'cart.general.empty_body' | t }}</p>
+        <button class="btn btn--secondary" data-close-panel>{{ 'cart.general.continue_shopping' | t }}</button>
+      </div>
+    </template>
+  </div>
+
+  <div class="cart-drawer__footer" data-cart-drawer-footer hidden>
+    <div class="cart-drawer__subtotal">
+      <span>{{ 'cart.general.subtotal' | t }}</span>
+      <span data-cart-subtotal>$0.00</span>
+    </div>
+    <a href="{{ routes.cart_url }}" class="btn btn--primary btn--full">{{ 'cart.general.checkout' | t }}</a>
+  </div>
+</div>

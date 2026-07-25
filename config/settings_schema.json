@@ -1,0 +1,175 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "SANAYA",
+    "theme_version": "1.0.0",
+    "theme_author": "SANAYA — Health and Beauty",
+    "theme_documentation_url": "",
+    "theme_support_url": ""
+  },
+  {
+    "name": "Logo",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "logo",
+        "label": "Logo (teal, for light backgrounds)"
+      },
+      {
+        "type": "image_picker",
+        "id": "logo_inverse",
+        "label": "Logo (cream, for teal/dark backgrounds)"
+      },
+      {
+        "type": "range",
+        "id": "logo_width",
+        "min": 80,
+        "max": 260,
+        "step": 4,
+        "default": 148,
+        "unit": "px",
+        "label": "Logo width"
+      },
+      {
+        "type": "image_picker",
+        "id": "favicon",
+        "label": "Favicon"
+      }
+    ]
+  },
+  {
+    "name": "Colors",
+    "settings": [
+      {
+        "type": "header",
+        "content": "SANAYA palette"
+      },
+      {
+        "type": "color",
+        "id": "color_background",
+        "label": "Cream / page background",
+        "default": "#F7F4ED"
+      },
+      {
+        "type": "color",
+        "id": "color_background_alt",
+        "label": "Soft cream (alt bands)",
+        "default": "#FBF9F3"
+      },
+      {
+        "type": "color",
+        "id": "color_ink",
+        "label": "Deep teal (text, buttons, footer)",
+        "default": "#2D515F"
+      },
+      {
+        "type": "color",
+        "id": "color_ink_hover",
+        "label": "Teal hover",
+        "default": "#23414C"
+      },
+      {
+        "type": "color",
+        "id": "color_muted",
+        "label": "Muted teal-grey (secondary text)",
+        "default": "#5C7681"
+      },
+      {
+        "type": "color",
+        "id": "color_hairline",
+        "label": "Hairline / border",
+        "default": "#E4DFD3"
+      },
+      {
+        "type": "color",
+        "id": "color_surface",
+        "label": "Surface / card white",
+        "default": "#FFFFFF"
+      },
+      {
+        "type": "color",
+        "id": "color_accent",
+        "label": "Blush accent (rare use)",
+        "default": "#D8A48F"
+      }
+    ]
+  },
+  {
+    "name": "Typography",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Headings"
+      },
+      {
+        "type": "select",
+        "id": "font_heading_family",
+        "label": "Heading font",
+        "default": "fraunces",
+        "options": [
+          { "value": "fraunces", "label": "Fraunces (serif, default)" },
+          { "value": "cormorant", "label": "Cormorant Garamond" }
+        ]
+      },
+      {
+        "type": "header",
+        "content": "Body"
+      },
+      {
+        "type": "select",
+        "id": "font_body_family",
+        "label": "Body font",
+        "default": "inter",
+        "options": [
+          { "value": "inter", "label": "Inter (default)" },
+          { "value": "hanken", "label": "Hanken Grotesk" }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Layout",
+    "settings": [
+      {
+        "type": "range",
+        "id": "page_width",
+        "min": 1100,
+        "max": 1440,
+        "step": 20,
+        "default": 1360,
+        "unit": "px",
+        "label": "Max page width"
+      }
+    ]
+  },
+  {
+    "name": "Cart",
+    "settings": [
+      {
+        "type": "select",
+        "id": "cart_type",
+        "label": "Cart type",
+        "default": "drawer",
+        "options": [
+          { "value": "drawer", "label": "Drawer" },
+          { "value": "page", "label": "Page" }
+        ]
+      },
+      {
+        "type": "number",
+        "id": "free_shipping_threshold",
+        "label": "Free delivery threshold ($)",
+        "default": 75
+      }
+    ]
+  },
+  {
+    "name": "Social media",
+    "settings": [
+      { "type": "text", "id": "social_instagram", "label": "Instagram URL" },
+      { "type": "text", "id": "social_tiktok", "label": "TikTok URL" },
+      { "type": "text", "id": "social_facebook", "label": "Facebook URL" },
+      { "type": "text", "id": "social_pinterest", "label": "Pinterest URL" }
+    ]
+  }
+]

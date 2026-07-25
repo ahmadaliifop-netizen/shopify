@@ -1,0 +1,89 @@
+<div class="collection-banner">
+  <div class="container">
+    <p class="eyebrow">{{ 'header.shop' | t }}</p>
+    <h1>{{ collection.title }}</h1>
+    {%- if collection.description != blank -%}
+      <div class="text-lede prose" style="max-width:640px;">{{ collection.description }}</div>
+    {%- endif -%}
+  </div>
+</div>
+
+<div class="container">
+  <div class="collection-toolbar">
+    <div class="collection-toolbar__group">
+      <button class="text-link" data-open-panel="filter-drawer">
+        {% render 'icon', name: 'plus', size: 14 %} {{ 'collections.general.filter_by' | t }}
+      </button>
+      <span class="text-muted" style="font-size:14px;">{{ 'collections.general.results_for' | t: count: collection.products_count }}</span>
+    </div>
+    {%- form 'localization', class: 'collection-toolbar__group' -%}
+      <label class="visually-hidden" for="SortBy">{{ 'collections.general.sort_by' | t }}</label>
+    {%- endform -%}
+    <select id="SortBy" class="field" onchange="var u=new URL(window.location); u.searchParams.set('sort_by', this.value); window.location = u;">
+      <option value="best-selling" {% if collection.sort_by == 'best-selling' %}selected{% endif %}>Bestselling</option>
+      <option value="price-ascending" {% if collection.sort_by == 'price-ascending' %}selected{% endif %}>Price: Low to high</option>
+      <option value="price-descending" {% if collection.sort_by == 'price-descending' %}selected{% endif %}>Price: High to low</option>
+      <option value="created-descending" {% if collection.sort_by == 'created-descending' %}selected{% endif %}>Newest</option>
+      <option value="title-ascending" {% if collection.sort_by == 'title-ascending' %}selected{% endif %}>A – Z</option>
+    </select>
+  </div>
+
+  {%- paginate collection.products by 24 -%}
+    {%- if collection.products.size > 0 -%}
+      <div class="grid grid--4">
+        {%- for product in collection.products -%}
+          {% render 'product-card', product: product %}
+        {%- endfor -%}
+      </div>
+    {%- else -%}
+      <div class="empty-state">
+        <p class="h3">{{ 'collections.general.no_products' | t }}</p>
+        <a href="{{ routes.all_products_collection_url }}" class="btn btn--secondary">{{ 'collections.general.all_products' | t }}</a>
+      </div>
+    {%- endif -%}
+
+    {%- if paginate.pages > 1 -%}
+      <nav class="pagination" aria-label="Pagination">
+        {%- if paginate.previous -%}<a href="{{ paginate.previous.url }}">←</a>{%- endif -%}
+        {%- for part in paginate.parts -%}
+          {%- if part.is_link -%}
+            <a href="{{ part.url }}">{{ part.title }}</a>
+          {%- else -%}
+            <span class="{% if part.title == paginate.current_page %}is-current{% endif %}">{{ part.title }}</span>
+          {%- endif -%}
+        {%- endfor -%}
+        {%- if paginate.next -%}<a href="{{ paginate.next.url }}">→</a>{%- endif -%}
+      </nav>
+    {%- endif -%}
+  {%- endpaginate -%}
+</div>
+
+<div id="filter-drawer" class="filter-drawer" data-panel hidden>
+  <div class="filter-drawer__header">
+    <h2 class="h4">{{ 'collections.general.filter_by' | t }}</h2>
+    <button class="icon-btn" data-close-panel aria-label="{{ 'accessibility.close' | t }}">{% render 'icon', name: 'close' %}</button>
+  </div>
+  {%- for filter in collection.filters -%}
+    <details class="filter-group" open>
+      <summary>{{ filter.label }} {% render 'icon', name: 'chevron-down', size: 16 %}</summary>
+      <div style="margin-top:10px;">
+        {%- for value in filter.values -%}
+          <label class="filter-option">
+            <input type="checkbox" {% if value.active %}checked{% endif %} onclick="window.location='{% if value.active %}{{ value.url_to_remove }}{% else %}{{ value.url_to_add }}{% endif %}';">
+            {{ value.label }} ({{ value.count }})
+          </label>
+        {%- endfor -%}
+      </div>
+    </details>
+  {%- endfor -%}
+  <div style="padding: 20px var(--gutter);">
+    <a href="{{ collection.url }}" class="text-link">{{ 'collections.general.clear_all' | t }}</a>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Collection page",
+  "settings": []
+}
+{% endschema %}

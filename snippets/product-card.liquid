@@ -1,0 +1,44 @@
+{%- comment -%}
+  Usage: {% render 'product-card', product: product %}
+{%- endcomment -%}
+<div class="product-card" data-reveal>
+  <div class="product-card__media media media--portrait media--zoom">
+    <a href="{{ product.url }}" aria-label="{{ product.title | escape }}">
+      {%- if product.featured_image != blank -%}
+        <img
+          src="{{ product.featured_image | image_url: width: 700 }}"
+          alt="{{ product.featured_image.alt | escape }}"
+          loading="lazy"
+          width="700" height="875">
+      {%- else -%}
+        <div class="media__placeholder">{% render 'icon', name: 'image', size: 40 %}</div>
+      {%- endif -%}
+      {%- if product.images[1] -%}
+        <img class="product-card__img--secondary" src="{{ product.images[1] | image_url: width: 700 }}" alt="" loading="lazy" width="700" height="875">
+      {%- endif -%}
+    </a>
+    {%- if product.compare_at_price > product.price -%}
+      <span class="product-card__tag">Sale</span>
+    {%- elsif product.available == false -%}
+      <span class="product-card__tag" style="background: var(--color-hairline); color: var(--color-muted);">{{ 'products.product.sold_out' | t }}</span>
+    {%- endif -%}
+    <div class="product-card__quick-add">
+      {%- if product.available and product.has_only_default_variant -%}
+        <form data-cart-add-form>
+          <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+          <button type="submit" class="btn btn--primary btn--full btn--sm">
+            {{ 'products.product.quick_add' | t }}
+          </button>
+        </form>
+      {%- else -%}
+        <a href="{{ product.url }}" class="btn btn--primary btn--full btn--sm">
+          {{ 'products.product.choose_options' | t }}
+        </a>
+      {%- endif -%}
+    </div>
+  </div>
+  <div class="product-card__body">
+    <a href="{{ product.url }}" class="product-card__title">{{ product.title }}</a>
+    <div class="product-card__price">{% render 'price', product: product %}</div>
+  </div>
+</div>

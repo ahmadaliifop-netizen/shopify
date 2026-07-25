@@ -1,0 +1,50 @@
+<div class="section section--tight newsletter{% if section.settings.background == 'ink' %} section--ink{% elsif section.settings.background == 'alt' %} section--alt{% endif %}">
+  <div class="container">
+    <div class="newsletter__inner" data-reveal>
+      <p class="eyebrow{% if section.settings.background == 'ink' %} eyebrow--on-dark{% endif %}">{{ section.settings.eyebrow | default: "Stay considered" }}</p>
+      <h2>{{ section.settings.heading | default: "Join the ritual" }}</h2>
+      <p class="text-lede" {% if section.settings.background == 'ink' %}style="color: rgba(247,244,237,0.75);"{% endif %}>
+        {{ section.settings.body | default: "Early access, quiet drops, and skin notes worth reading." }}
+      </p>
+      {%- form 'customer', id: 'newsletter-form', class: 'input-row', style: 'margin-inline:auto;' -%}
+        <input type="hidden" name="contact[tags]" value="newsletter">
+        <label class="visually-hidden" for="NewsletterEmail-{{ section.id }}">{{ 'general.newsletter.placeholder' | t }}</label>
+        <input
+          id="NewsletterEmail-{{ section.id }}"
+          type="email"
+          name="contact[email]"
+          class="field"
+          placeholder="{{ 'general.newsletter.placeholder' | t }}"
+          required>
+        <button type="submit" class="btn btn--primary">{{ 'general.newsletter.submit' | t }}</button>
+        {%- if form.posted_successfully? -%}
+          <p class="text-muted" style="width:100%; margin-top:8px;">{{ 'general.newsletter.success' | t }}</p>
+        {%- endif -%}
+      {%- endform -%}
+      <p class="newsletter__privacy">{{ 'general.newsletter.privacy' | t }}</p>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Newsletter",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Stay considered" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Join the ritual" },
+    { "type": "textarea", "id": "body", "label": "Body", "default": "Early access, quiet drops, and skin notes worth reading." },
+    {
+      "type": "select",
+      "id": "background",
+      "label": "Background",
+      "default": "ink",
+      "options": [
+        { "value": "default", "label": "Cream" },
+        { "value": "alt", "label": "Soft cream" },
+        { "value": "ink", "label": "Teal" }
+      ]
+    }
+  ],
+  "presets": [{ "name": "Newsletter" }]
+}
+{% endschema %}

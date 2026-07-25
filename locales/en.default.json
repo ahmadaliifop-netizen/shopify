@@ -1,0 +1,119 @@
+{
+  "general": {
+    "meta": {
+      "tagline": "Everyday health & beauty rituals"
+    },
+    "search": {
+      "placeholder": "Search products, ingredients, journal…",
+      "submit": "Search",
+      "no_results": "No results for \"{{ terms }}\". Try another search.",
+      "results_count": "{{ count }} results for \"{{ terms }}\""
+    },
+    "newsletter": {
+      "heading": "Join the ritual",
+      "body": "Early access, quiet drops, and skin notes worth reading.",
+      "placeholder": "Your email",
+      "submit": "Subscribe",
+      "privacy": "By subscribing you agree to receive marketing emails. Unsubscribe anytime.",
+      "success": "Thank you — you're on the list."
+    },
+    "password": {
+      "heading": "Something considered is on its way.",
+      "body": "SANAYA is preparing to open. Leave your email for early access.",
+      "login_form_heading": "Enter using password"
+    }
+  },
+  "accessibility": {
+    "skip_to_content": "Skip to content",
+    "close": "Close",
+    "menu": "Menu",
+    "cart": "Cart",
+    "search": "Search",
+    "account": "Account",
+    "next_slide": "Next",
+    "previous_slide": "Previous",
+    "load_more": "Load more"
+  },
+  "header": {
+    "announcement_default": "Free delivery on orders over {{ amount }} · A considered ritual, delivered",
+    "shop": "Shop",
+    "skincare": "Skincare",
+    "beauty": "Beauty",
+    "wellness": "Wellness",
+    "about": "About",
+    "journal": "Journal",
+    "view_all": "View all",
+    "explore": "Explore"
+  },
+  "products": {
+    "product": {
+      "add_to_cart": "Add to bag",
+      "sold_out": "Sold out",
+      "unavailable": "Unavailable",
+      "quick_add": "Quick add",
+      "quantity": "Quantity",
+      "view_details": "View details",
+      "regular_price": "Regular price",
+      "sale_price": "Sale price",
+      "from_price": "From",
+      "details": "Details",
+      "ingredients": "Ingredients",
+      "how_to_use": "How to use",
+      "shipping_returns": "Shipping & returns",
+      "shipping_returns_body": "Complimentary delivery on orders over {{ amount }}. Considered returns accepted within 30 days.",
+      "pairs_well": "Pairs well with",
+      "choose_options": "Choose options"
+    }
+  },
+  "collections": {
+    "general": {
+      "all_products": "All products",
+      "no_products": "No products found in this collection.",
+      "sort_by": "Sort",
+      "filter_by": "Filter",
+      "clear_all": "Clear all",
+      "results_for": "{{ count }} products"
+    }
+  },
+  "cart": {
+    "general": {
+      "title": "Your bag",
+      "empty": "Your bag is quiet, for now.",
+      "empty_body": "Add something considered to begin.",
+      "continue_shopping": "Continue shopping",
+      "subtotal": "Subtotal",
+      "checkout": "Checkout",
+      "remove": "Remove",
+      "note": "Order note",
+      "free_shipping_reached": "You've unlocked free delivery.",
+      "free_shipping_remaining": "You're {{ amount }} away from free delivery."
+    }
+  },
+  "blogs": {
+    "article": {
+      "read_more": "Read the journal entry",
+      "back_to_journal": "Back to Journal"
+    }
+  },
+  "404": {
+    "title": "This page has wandered off",
+    "body": "We couldn't find the page you were looking for. Let's bring you back to a calmer place.",
+    "link": "Return home"
+  },
+  "contact": {
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "message": "Message",
+      "submit": "Send message",
+      "success": "Thank you — we'll be in touch soon."
+    }
+  },
+  "footer": {
+    "shop": "Shop",
+    "about": "About",
+    "help": "Help",
+    "contact": "Contact",
+    "rights": "All rights reserved."
+  }
+}

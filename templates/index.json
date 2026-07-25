@@ -1,0 +1,128 @@
+{
+  "sections": {
+    "hero": {
+      "type": "hero",
+      "settings": {
+        "eyebrow": "SANAYA · Health and Beauty",
+        "heading": "Everyday rituals for skin that feels like you.",
+        "subheading": "Clean, considered health & beauty essentials — chosen for how they make you feel.",
+        "button_label": "Shop the essentials",
+        "button_link": "/collections/all",
+        "link_label": "Our story",
+        "link_link": "/pages/about"
+      }
+    },
+    "value_strip": {
+      "type": "value-strip",
+      "blocks": {
+        "b1": { "type": "item", "settings": { "icon": "leaf", "text": "Clean formulas" } },
+        "b2": { "type": "item", "settings": { "icon": "heart", "text": "Cruelty-free" } },
+        "b3": { "type": "item", "settings": { "icon": "shield", "text": "Dermatologist-loved" } },
+        "b4": { "type": "item", "settings": { "icon": "truck", "text": "Free delivery over $75" } }
+      },
+      "block_order": ["b1", "b2", "b3", "b4"]
+    },
+    "categories": {
+      "type": "featured-categories",
+      "settings": {
+        "eyebrow": "Shop by category",
+        "heading": "A calm edit, by ritual.",
+        "background": "default"
+      },
+      "blocks": {
+        "c1": { "type": "category", "settings": { "title": "Skincare", "link": "/collections/skincare" } },
+        "c2": { "type": "category", "settings": { "title": "Beauty", "link": "/collections/beauty" } },
+        "c3": { "type": "category", "settings": { "title": "Wellness", "link": "/collections/wellness" } }
+      },
+      "block_order": ["c1", "c2", "c3"]
+    },
+    "bestsellers": {
+      "type": "product-rail",
+      "settings": {
+        "eyebrow": "Bestsellers",
+        "heading": "The everyday edit",
+        "layout": "rail",
+        "product_count": 8,
+        "background": "default"
+      }
+    },
+    "brand_story": {
+      "type": "brand-story",
+      "settings": {
+        "eyebrow": "Our philosophy",
+        "heading": "Considered self-care, made simple.",
+        "body": "SANAYA is a calm edit of skincare, beauty and wellness — nothing you don't need, everything that makes the everyday feel considered.",
+        "button_label": "Our story",
+        "button_link": "/pages/about",
+        "image_position": "left",
+        "background": "alt"
+      }
+    },
+    "new_arrivals": {
+      "type": "product-rail",
+      "settings": {
+        "eyebrow": "New arrivals",
+        "heading": "Just in",
+        "layout": "grid",
+        "product_count": 8,
+        "background": "default"
+      }
+    },
+    "editorial": {
+      "type": "editorial-feature",
+      "settings": {
+        "eyebrow": "How to layer",
+        "heading": "Build your ritual",
+        "button_label": "Shop the ritual",
+        "button_link": "/collections/all"
+      },
+      "blocks": {
+        "s1": { "type": "step", "settings": { "title": "Cleanse", "text": "Start with a gentle, non-stripping cleanse." } },
+        "s2": { "type": "step", "settings": { "title": "Nourish", "text": "Layer a serum suited to how your skin feels today." } },
+        "s3": { "type": "step", "settings": { "title": "Seal", "text": "Finish with a moisturiser to lock it all in." } }
+      },
+      "block_order": ["s1", "s2", "s3"]
+    },
+    "testimonials": {
+      "type": "testimonials",
+      "settings": {
+        "eyebrow": "In their words",
+        "heading": "Quietly loved"
+      },
+      "blocks": {
+        "t1": { "type": "testimonial", "settings": { "rating": 5, "quote": "The first routine that's actually felt like mine. Simple, effective, and it smells like a spa.", "author": "Layla H., verified buyer" } },
+        "t2": { "type": "testimonial", "settings": { "rating": 5, "quote": "Skin looks calmer within a week. I don't reach for anything else now.", "author": "Nour A., verified buyer" } },
+        "t3": { "type": "testimonial", "settings": { "rating": 5, "quote": "Considered is the right word. Nothing feels excessive, everything feels intentional.", "author": "Maya S., verified buyer" } }
+      },
+      "block_order": ["t1", "t2", "t3"]
+    },
+    "journal": {
+      "type": "blog-teaser",
+      "settings": {
+        "eyebrow": "Journal",
+        "heading": "Notes on skin & self-care"
+      }
+    },
+    "newsletter": {
+      "type": "newsletter",
+      "settings": {
+        "eyebrow": "Stay considered",
+        "heading": "Join the ritual",
+        "body": "Early access, quiet drops, and skin notes worth reading.",
+        "background": "ink"
+      }
+    }
+  },
+  "order": [
+    "hero",
+    "value_strip",
+    "categories",
+    "bestsellers",
+    "brand_story",
+    "new_arrivals",
+    "editorial",
+    "testimonials",
+    "journal",
+    "newsletter"
+  ]
+}

@@ -1,0 +1,6 @@
+_frames/
+*.mp4
+*.wav
+*.render.json
+render.log
+stills.png

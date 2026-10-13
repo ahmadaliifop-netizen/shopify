@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<!-- fastroo · 30 s · made with onetake (PolyForm Noncommercial 1.0.0, lineage otk-7f3e1c) -->
+<html lang="ar">
+<head>
+<meta charset="utf-8">
+<title>fastroo · 30s</title>
+<link rel="stylesheet" href="fonts.css">
+<style>
+html,body{margin:0;width:1920px;height:1080px;overflow:hidden;background:#f3f5fa}
+canvas{position:absolute;left:0;top:0;width:1920px;height:1080px}
+#hud{position:absolute;right:14px;bottom:10px;font:14px monospace;color:#c00;display:none}
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="hud"></div>
+<script src="motion.js"></script>
+<script src="logo.js"></script>
+<script>
+// ══════════════════════════════════════════════════════════════════════════════════════════════
+// CONCEPT — one parcel, one take. A fastroo box hops through the city the way a kangaroo would:
+// packed on the counter, one hop out of the shop, a quickening run down the street, one long leap over the
+// towers, a landing at the door. The camera pulls back to the whole city — every parcel hopping — they all
+// gather into ours, its lid flips up into the badge, the kangaroo hops out of the box into it, and the box
+// flattens into the line the name lands on.
+//
+//  t            beat                                   carries into the next beat
+//  0.00–2.95    the box on the counter, tape, "طلبك جاهز"   the box (rest)
+//  2.95–4.05    crouch, first hop out of the shop           the box
+//  4.25–7.97    the run: eight hops, quickening             the box, the dashed route behind it
+//  7.97–11.25   crouch, the leap over the towers, a flip    the box; the camera whips to the door first
+//  11.25–14.00  landed. the bell. "وصل طلبك."               (rest) the box
+//  14.00–16.60  pull back: the route, the city hopping      the parcels
+//  17.75–19.30  أسرع · أقرب · أسهل (hits)                    the parcels
+//  19.35–22.40  they all hop into our box; the camera dives the box
+//  23.00–24.25  iris from the box; the lid → the badge; the kangaroo hops out of the box into it
+//  24.00–26.30  the box flattens into the line; fastroo lands on it; the tagline
+//  26.30–30.00  dead still
+// ══════════════════════════════════════════════════════════════════════════════════════════════
+const DUR = 30, W = 1920, H = 1080;
+window.__meta = { dur: DUR, fps: 30, w: W, h: H,
+  inFrame: { box: [0.2, 23.2], badge: [24.4, 30, 'whole'], word: [25.6, 30, 'whole'] } };
+const { clamp, lerp, seg, sstep, ssstep, spring, ring, ease } = OM;
+
+// ── look: fastroo blue from the logo, kraft board, a cool paper ground ──
+const C = { ground: '#f3f5fa', deep: '#e3e8f2', far: '#e9edf6', line: '#d1d8e7', mute: '#7a8399', ink: '#0e1631',
+  blue: '#1933ed', blue2: '#3d5bff', blueD: '#1026c4', kraft: '#c8955a', kraftL: '#d9ab73', kraftD: '#a6743d', card: '#ffffff', roof: '#c9d2ea' };
+const AR = (w, px) => `${w} ${px}px Tajawal`;
+
+// ── timeline ──
+const T = { tape0: 0.55, tape1: 1.15, ready: 1.35, crouch0: 2.95, hop0: 3.25, run0: 4.25,
+  leapCrouch: 7.97, leap0: 8.75, land: 11.25, bell: 11.45, arrived: 12.15, pull0: 14.0, pull1: 16.6,
+  hits: [[17.75, 'أسرع.'], [18.25, 'أقرب.'], [18.75, 'أسهل.']], hitsOut: 19.3,
+  gather0: 19.35, dive1: 22.4, iris0: 23.0, lid0: 23.3, mark0: 23.62, markLand: 24.25, flat0: 24.0, flat1: 24.5,
+  word0: 24.72, line0: 25.35, tag0: 25.55 };
+const GY = 700, BW = 120, BH = 92, HOME = 8200;          // street level, the box, where it lands
+
+// ── the hops: the box's whole path, every hop {t0,t1,x0,y0,x1,y1,h,crouch,spin} ──
+const HOPS = [];
+(function buildHops() {
+  let x = 420, y = 560;
+  const add = (t0, t1, x1, y1, h, crouch = 0.08, spin = 0) => { HOPS.push({ t0, t1, x0: x, y0: y, x1, y1, h, crouch, spin }); x = x1; y = y1; };
+  add(T.hop0, 4.05, 1250, GY, 230, 0.30);
+  const run = [[4.25, 4.85, 430, 170], [4.92, 5.45, 450, 160], [5.51, 5.98, 470, 150], [6.03, 6.45, 480, 140],
+               [6.50, 6.88, 480, 130], [6.92, 7.27, 470, 122], [7.31, 7.63, 450, 116], [7.67, 7.97, 430, 110]];
+  for (const [t0, t1, d, h] of run) add(t0, t1, x + d, GY, h, 0.07);
+  add(T.leap0, T.land, HOME, GY, 1150, 0.78, 1);
+})();
+function boxAt(t) {
+  // → {x, yb, sx, sy, rot, air, vx, vy}
+  for (const h of HOPS) if (t >= h.t0 && t < h.t1) {
+    const D = h.t1 - h.t0, k = (t - h.t0) / D;
+    const x = lerp(h.x0, h.x1, k), yb = lerp(h.y0, h.y1, k) - 4 * h.h * k * (1 - k);
+    const vx = (h.x1 - h.x0) / D, vy = ((h.y1 - h.y0) - 4 * h.h * (1 - 2 * k)) / D;
+    const st = Math.min(0.16, Math.abs(vy) * 0.00009) * (1 - h.spin);         // stretch along the climb / fall
+    let rot = Math.atan2(vy, vx) * 0.22 * (1 - h.spin);
+    if (h.spin) rot = -Math.PI * 2 * ease.smoother(seg(k, 0.22, 0.74));      // the leap: one back-flip at the top
+    return { x, yb, sx: 1 - st * 0.6, sy: 1 + st, rot, air: true, vx, vy, k, hop: h };
+  }
+  let last = null, next = null;
+  for (const h of HOPS) { if (h.t1 <= t) last = h; if (!next && h.t0 > t) next = h; }
+  const x = last ? last.x1 : 420, yb = last ? last.y1 : 560;
+  let sx = 1, sy = 1;
+  if (last) { const big = last.h > 500 ? 1.9 : last.h > 200 ? 1.3 : 0.8; const im = OM.impact(t, last.t1, { decay: 8, omega: 24, sqx: 0.16 * big, sqy: 0.2 * big }); sx = im.sx; sy = im.sy; }
+  if (next && next.crouch) { const c = next.crouch, u = sstep(next.t0 - c, next.t0 - 0.03, t); const d = (next.h > 500 ? 0.26 : 0.14) * u; sy *= 1 - d; sx *= 1 + d * 0.55; }
+  return { x, yb, sx, sy, rot: 0, air: false, vx: 0, vy: 0 };
+}
+
+// ── the city: parcels on the far street, hopping their own routes (depth .35) ──
+const FAR = 0.35, FGY = 640;
+const NET = [];
+(function buildNet() {
+  const r = OM.rng(11);
+  for (let i = 0; i < 16; i++) {
+    const a = 1350 + r() * 3600, span = 500 + r() * 900, P = 0.62 + r() * 0.38, ph = r() * P, L = 150 + r() * 90;
+    NET.push({ a, b: Math.min(5300, a + span), P, ph, L, h: 70 + r() * 50, s: 0.62 + r() * 0.12 });
+  }
+})();
+function netRaw(p, t) {                                  // ping-pong between a and b, one hop per period
+  const steps = Math.max(1, Math.round((p.b - p.a) / p.L)), L = (p.b - p.a) / steps;
+  const u = (t + p.ph) / p.P, n = Math.floor(u), f = u - n, air = 0.78;
+  const at = m => { const q = ((m % (2 * steps)) + 2 * steps) % (2 * steps); return p.a + (steps - Math.abs(steps - q)) * L; };
+  const x0 = at(n), x1 = at(n + 1);
+  if (f > air) { const im = OM.impact(t, (n + air) * p.P - p.ph, { decay: 9, omega: 26, sqx: 0.1, sqy: 0.13 }); return { x: x1, y: FGY, sx: im.sx, sy: im.sy, rot: 0, land: (n + air) * p.P - p.ph }; }
+  const k = f / air; return { x: lerp(x0, x1, k), y: FGY - 4 * p.h * k * (1 - k), sx: 1, sy: 1, rot: (x1 - x0 > 0 ? 1 : -1) * 0.12 * (1 - 2 * k), land: null };
+}
+
+// ── camera: keyed, plus a lagging follow on the run, an operator's hand, shakes on the landings ──
+const KEYS = [
+  { t: 0, x: 470, y: 420, zoom: 1.6 },
+  { t: 2.95, x: 470, y: 420, zoom: 1.6 },
+  { t: 4.1, x: 1300, y: 560, zoom: 1.3, curve: ease.sineInOut },
+  { t: 7.95, x: 4950, y: 520, zoom: 0.82, curve: ease.linear },
+  { t: 8.6, x: 5150, y: 500, zoom: 0.74, curve: ease.cubicOut },
+  { t: 10.0, x: 6600, y: 60, zoom: 0.42, curve: ease.sineInOut },
+  { t: 10.75, x: 7600, y: 150, zoom: 0.6, curve: ease.sineInOut },
+  { t: 11.15, x: HOME, y: 560, zoom: 1.4, curve: ease.expoInOut },
+  { t: T.pull0, x: HOME, y: 560, zoom: 1.4 },
+  { t: T.pull1, x: 4300, y: 470, zoom: 0.21, curve: ease.cubicInOut },
+  { t: T.gather0, x: 4300, y: 470, zoom: 0.21 },
+  { t: T.dive1, x: HOME, y: 600, zoom: 1.55, curve: ease.cubicInOut },
+  { t: DUR, x: HOME, y: 600, zoom: 1.55 },
+];
+const HITS = [[4.05, 7, 9], [11.25, 18, 6.5], [T.markLand, 5, 9]];
+const handEnv = t => sstep(3.1, 3.6, t) * (1 - sstep(10.9, 11.2, t)) + sstep(14.1, 14.6, t) * (1 - sstep(16.2, 16.6, t)) + sstep(19.4, 19.9, t) * (1 - sstep(21.9, 22.35, t));
+function follow(t) {                                     // the box's centre, averaged over the last 0.3 s: a camera that lags it
+  let sx = 0, sy = 0; const n = 10;
+  for (let i = 0; i < n; i++) { const b = boxAt(t - 0.3 * i / (n - 1)); sx += b.x; sy += b.yb; }
+  return [sx / n + 140, sy / n - 160];
+}
+function camAt(t) {
+  const c = OM.camera(t, KEYS);
+  const wR = sstep(4.05, 4.6, t) * (1 - sstep(7.7, 8.4, t));
+  if (wR > 0) { const f = follow(t); c.x = lerp(c.x, f[0], wR); c.y = lerp(c.y, f[1] + 0, wR * 0.6); }
+  if (t > T.pull0 && t < T.pull1) {                      // the pull-out: x lags the zoom so the box never leaves the frame
+    const pz = Math.log(c.zoom / 1.4) / Math.log(0.21 / 1.4); c.x = lerp(HOME, 4300, pz * pz); }
+  if (t > T.gather0 && t < T.dive1) {                    // the dive: x leads the zoom, the same in reverse
+    const pz = Math.log(c.zoom / 0.21) / Math.log(1.55 / 0.21); c.x = lerp(4300, HOME, 1 - (1 - pz) * (1 - pz)); }
+  const e = handEnv(t) * 5;
+  let x = c.x + e * (Math.sin(1.7 * t) + 0.6 * Math.sin(2.9 * t + 1)) / c.zoom, y = c.y + e * (Math.sin(1.3 * t + 2) + 0.5 * Math.sin(3.3 * t)) / c.zoom, rot = c.rot + handEnv(t) * 0.004 * Math.sin(0.9 * t);
+  for (const [th, amp, decay] of HITS) { const s = OM.shake(t, th, { amp, decay, seed: Math.round(th * 100) }); x += s.x / c.zoom; y += s.y / c.zoom; rot += s.rot * 0.5; }
+  // each little run landing gives the frame a nudge
+  for (let i = 1; i < 9; i++) { const s = OM.shake(t, HOPS[i].t1, { amp: 2.2, decay: 12, seed: 40 + i }); x += s.x / c.zoom; y += s.y / c.zoom; }
+  return { x, y, zoom: c.zoom, rot };
+}
+
+// ── canvas ──
+const cv = document.getElementById('cv'), g = cv.getContext('2d');
+const DPR = window.devicePixelRatio || 1; cv.width = W * DPR; cv.height = H * DPR;
+const setM = M => g.setTransform(DPR * M[0], DPR * M[1], DPR * M[2], DPR * M[3], DPR * M[4], DPR * M[5]);
+const screen = () => g.setTransform(DPR, 0, 0, DPR, 0, 0);
+function rr(x, y, w, h, r) { r = Math.min(r, w / 2, h / 2); g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r); g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath(); }
+function poly(pts, rad) {                                  // a closed polygon with a radius per corner
+  const n = pts.length; g.beginPath();
+  const mid = (a, b) => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+  const m0 = mid(pts[n - 1], pts[0]); g.moveTo(m0[0], m0[1]);
+  for (let i = 0; i < n; i++) { const p = pts[i], q = pts[(i + 1) % n], m = mid(p, q); g.arcTo(p[0], p[1], m[0], m[1], Math.max(0.01, rad[i])); }
+  g.closePath();
+}
+const mix = (a, b, k) => { const p = s => [1, 3, 5].map(i => parseInt(s.slice(i, i + 2), 16)); const A = p(a), B = p(b); return `rgb(${A.map((v, i) => Math.round(lerp(v, B[i], k))).join(',')})`; };
+
+// ── the world ──
+const TOWERS = [[5300, 300, 330], [5640, 240, 470], [5930, 280, 600], [6260, 230, 520], [6540, 300, 640], [6890, 260, 560], [7200, 250, 430], [7480, 200, 330]];
+const SHOPS = [[1500, 420, 210, 'blue'], [2050, 380, 260, 'roof'], [2580, 460, 190, 'kraft'], [3150, 400, 240, 'roof'], [3700, 440, 280, 'blue'], [4250, 360, 220, 'roof'], [4700, 420, 200, 'kraft']];
+const FARB = (() => { const r = OM.rng(5), a = []; for (let x = -1200; x < 8200; x += 140 + r() * 160) a.push([x, 120 + r() * 120, 140 + r() * 360]); return a; })();
+const TREES = [1180, 1900, 2460, 3020, 3560, 4100, 4560, 5060, 7760];
+
+function drawFar(t, cam) {
+  setM(OM.view(cam, { depth: FAR }));
+  g.fillStyle = C.far;
+  for (const [x, w, h] of FARB) g.fillRect(x, FGY - h, w, h + 400);
+  g.fillStyle = '#dde3ef'; g.fillRect(-3000, FGY, 16000, 600);
+  // the city's other parcels
+  for (let i = 0; i < NET.length; i++) { const q = netAt(i, t); if (!q || q.gone) continue; if (q.screen) continue;
+    drawParcel(q.x, q.y, q.s, q.sx, q.sy, q.rot, 0.92); }
+}
+function drawParcel(x, yb, s, sx, sy, rot, alpha) {
+  g.save(); g.translate(x, yb); g.translate(0, -BH * s / 2); g.rotate(rot); g.translate(0, BH * s / 2); g.scale(s * sx, s * sy);
+  g.globalAlpha = alpha;
+  g.fillStyle = C.kraft; rr(-BW / 2, -BH, BW, BH, 5); g.fill();
+  g.fillStyle = C.kraftL; rr(-BW / 2 - 2, -BH, BW + 4, 22, 4); g.fill();
+  g.fillStyle = C.blue; g.fillRect(-BW / 2 - 2, -BH + 4, BW + 4, 13);
+  g.restore(); g.globalAlpha = 1;
+}
+function drawStore() {
+  g.fillStyle = C.card; g.fillRect(-500, 150, 1380, GY - 150);                       // back wall
+  g.fillStyle = C.deep; g.fillRect(-500, 150, 1380, 18);
+  // shelves with stock
+  g.fillStyle = C.line; g.fillRect(-60, 330, 520, 8); g.fillRect(-60, 440, 520, 8);
+  const r = OM.rng(3);
+  for (let row = 0; row < 2; row++) for (let x = -40; x < 440; x += 92) { const w = 60 + r() * 20, h = 46 + r() * 26, y = (row ? 440 : 330);
+    g.fillStyle = r() > 0.3 ? C.kraftL : C.kraft; rr(x, y - h, w, h, 3); g.fill(); g.fillStyle = C.blue; g.fillRect(x - 1, y - h + 3, w + 2, 6); }
+  // the counter
+  g.fillStyle = C.ink; g.fillRect(150, 556, 560, 8);
+  g.fillStyle = C.deep; g.fillRect(160, 564, 540, GY - 564);
+  g.fillStyle = C.line; g.fillRect(160, 600, 540, 3);
+  // awning + fascia with the name
+  g.fillStyle = C.blue; g.fillRect(-500, 70, 1400, 90);
+  for (let x = -500; x < 900; x += 70) { g.fillStyle = (Math.round((x + 500) / 70) % 2) ? C.blue : '#ffffff'; g.beginPath(); g.moveTo(x, 160); g.lineTo(x + 70, 160); g.lineTo(x + 70, 196); g.arc(x + 35, 196, 35, 0, Math.PI); g.closePath(); g.fill(); }
+  g.fillStyle = '#fff'; g.font = AR(800, 50); g.textAlign = 'left'; g.textBaseline = 'middle'; g.fillText('fastroo', 560, 116);
+  drawBadge(500, 116, 62, 1);
+  g.fillStyle = C.ink; g.fillRect(872, 70, 10, GY - 70);                              // the shop's front post
+}
+function drawStreet(t) {
+  for (const [x, w, h, tone] of SHOPS) {
+    g.fillStyle = C.card; g.fillRect(x, GY - h, w, h);
+    g.strokeStyle = C.line; g.lineWidth = 3; g.strokeRect(x, GY - h, w, h);
+    g.fillStyle = tone === 'blue' ? C.blue : tone === 'kraft' ? C.kraftL : C.roof; g.fillRect(x - 10, GY - h - 26, w + 20, 26);
+    g.fillStyle = C.deep; g.fillRect(x + 24, GY - h + 60, w - 48, 70);
+    g.fillStyle = C.line; g.fillRect(x + w / 2 - 28, GY - 110, 56, 110);
+  }
+  for (const [x, w, h] of TOWERS) {
+    g.fillStyle = '#dfe5f1'; g.fillRect(x, GY - h, w, h);
+    g.fillStyle = C.card;
+    for (let yy = GY - h + 34; yy < GY - 40; yy += 46) for (let xx = x + 26; xx < x + w - 40; xx += 52) g.fillRect(xx, yy, 26, 22);
+  }
+  for (const x of TREES) { g.fillStyle = C.line; g.fillRect(x - 4, GY - 120, 8, 120); g.fillStyle = '#cfdcd4'; g.beginPath(); g.arc(x, GY - 150, 48, 0, Math.PI * 2); g.fill(); }
+  for (let x = 1400; x < 7800; x += 760) { g.fillStyle = C.ink; g.fillRect(x - 3, GY - 230, 6, 230); g.fillRect(x - 3, GY - 230, 34, 6); g.fillStyle = C.blue2; g.fillRect(x + 22, GY - 224, 16, 8); }
+}
+function drawHouse(t) {
+  const X = 7920;
+  g.fillStyle = C.card; g.fillRect(X, 420, 880, GY - 420);
+  g.strokeStyle = C.line; g.lineWidth = 3; g.strokeRect(X, 420, 880, GY - 420);
+  g.fillStyle = C.roof; g.beginPath(); g.moveTo(X - 40, 424); g.lineTo(X + 440, 250); g.lineTo(X + 920, 424); g.closePath(); g.fill();
+  g.fillStyle = C.deep; rr(X + 70, 480, 170, 120, 6); g.fill(); g.fillStyle = C.card; g.fillRect(X + 152, 480, 6, 120); g.fillRect(X + 70, 537, 170, 6);
+  g.fillStyle = C.deep; rr(X + 600, 480, 170, 120, 6); g.fill();
+  g.fillStyle = C.blue; rr(8290, 460, 124, GY - 460, 6); g.fill();                    // the door
+  g.fillStyle = C.blueD; rr(8306, 478, 92, 90, 4); g.fill(); rr(8306, 584, 92, 96, 4); g.fill();
+  g.fillStyle = '#ffd66b'; g.beginPath(); g.arc(8396, 590, 6, 0, Math.PI * 2); g.fill();
+  g.fillStyle = C.line; g.fillRect(8270, GY - 14, 164, 14);                             // the step
+  // the bell: rings when the box lands
+  const rg = ring(t - T.bell, 6, 30) * 0.5, on = t >= T.bell;
+  g.save(); g.translate(8452, 540); g.rotate(rg);
+  g.fillStyle = C.ink; rr(-12, -16, 24, 32, 6); g.fill(); g.fillStyle = on && t < T.bell + 0.5 ? '#ffd66b' : '#fff'; g.beginPath(); g.arc(0, 0, 6, 0, Math.PI * 2); g.fill();
+  g.restore();
+  if (on) { const u = seg(t, T.bell, T.bell + 0.9); if (u < 1) { g.strokeStyle = C.blue; g.lineWidth = 4; g.globalAlpha = 1 - u;
+    for (const k of [0, 0.3]) { const r = 24 + (u + k) * 50; g.beginPath(); g.arc(8452, 540, r, -0.7, 0.7); g.stroke(); g.beginPath(); g.arc(8452, 540, r, Math.PI - 0.7, Math.PI + 0.7); g.stroke(); }
+    g.globalAlpha = 1; } }
+}
+function drawGround(cam) {
+  g.fillStyle = C.deep; g.fillRect(-4000, GY, 18000, 1600);
+  g.fillStyle = C.ink; g.fillRect(-4000, GY, 18000, 4);
+  g.fillStyle = C.card; for (let x = 900; x < 9400; x += 160) g.fillRect(x, GY + 90, 80, 8);
+}
+function drawRoute(t, cam) {                              // the dashed path the box has hopped
+  if (t < T.hop0) return;
+  g.save(); g.strokeStyle = C.blue; g.lineCap = 'round'; g.lineWidth = Math.max(5, 2.2 / cam.zoom);
+  g.setLineDash([Math.max(14, 7 / cam.zoom), Math.max(16, 8 / cam.zoom)]);
+  g.globalAlpha = 0.55 * (1 - sstep(T.iris0, T.iris0 + 0.4, t));
+  for (const h of HOPS) { if (t < h.t0) break; const t1 = Math.min(t, h.t1), n = Math.max(2, Math.ceil((t1 - h.t0) * 90));
+    g.beginPath(); for (let i = 0; i <= n; i++) { const b = boxAt(h.t0 + (t1 - h.t0) * i / n - 1e-6 + (i === 0 ? 2e-6 : 0)); const yy = b.yb - BH / 2; i ? g.lineTo(b.x, yy) : g.moveTo(b.x, yy); } g.stroke(); }
+  g.restore();
+}
+function drawBox(t, b, opts = {}) {
+  const tape = clamp((tapeX(t) + 62) / 124);
+  // shadow on whatever it's over
+  const floor = b.x < 880 && b.yb <= 560.5 ? 560 : GY, up = Math.max(0, floor - b.yb);
+  if (!opts.noShadow) { g.fillStyle = 'rgba(14,22,49,' + (0.16 * Math.exp(-up / 260)).toFixed(3) + ')'; g.beginPath(); g.ellipse(b.x, floor + 2, 66 * (1 + up / 600) * b.sx, 9, 0, 0, Math.PI * 2); g.fill(); }
+  g.save(); g.translate(b.x, b.yb); g.translate(0, -BH / 2); g.rotate(b.rot); g.translate(0, BH / 2); g.scale(b.sx, b.sy);
+  if (!opts.noBody) {
+    g.fillStyle = C.kraft; rr(-BW / 2, -BH, BW, BH, 5); g.fill();
+    g.fillStyle = C.kraftD; g.fillRect(-BW / 2, -8, BW, 8);
+    g.fillStyle = '#fff'; rr(10, -60, 38, 28, 3); g.fill();                         // the label
+    g.fillStyle = C.line; g.fillRect(15, -53, 22, 3); g.fillRect(15, -46, 28, 3); g.fillStyle = C.blue; g.fillRect(15, -39, 14, 3);
+    g.strokeStyle = C.kraftD; g.lineWidth = 2; g.beginPath(); g.moveTo(-40, -50); g.lineTo(-40, -34); g.moveTo(-46, -44); g.lineTo(-40, -50); g.lineTo(-34, -44); g.stroke();   // this way up
+  }
+  if (!opts.noLid) {
+    g.fillStyle = C.kraftL; rr(-BW / 2 - 3, -BH, BW + 6, 22, 4); g.fill();
+    if (tape > 0) { g.fillStyle = C.blue; g.fillRect(-BW / 2 - 3, -BH + 4, (BW + 6) * tape, 13); }
+  }
+  g.restore();
+}
+// the tape dispenser: the visible cause of the first beat
+function tapeX(t) { return lerp(-150, 110, ease.smooth(seg(t, T.tape0, T.tape1))); }
+function drawDispenser(t) {
+  if (t < T.tape0 - 0.35 || t > T.tape1 + 0.6) return;
+  const enter = ease.expoOut(seg(t, T.tape0 - 0.35, T.tape0)), leave = ease.expoIn(seg(t, T.tape1 + 0.05, T.tape1 + 0.5));
+  const x = 420 + (t < T.tape0 ? lerp(-420, -150, enter) : tapeX(t)) + leave * 260, y = 560 - BH - 14 - leave * 180;
+  const spin = (x - 270) / 18;
+  g.save(); g.translate(x, y);
+  g.fillStyle = C.ink; rr(-16, -64, 70, 16, 8); g.fill(); g.fillRect(-6, -50, 10, 30);                 // handle
+  g.fillStyle = C.blue; g.beginPath(); g.arc(0, -18, 24, 0, Math.PI * 2); g.fill();
+  g.fillStyle = C.card; g.beginPath(); g.arc(0, -18, 11, 0, Math.PI * 2); g.fill();
+  g.strokeStyle = C.blueD; g.lineWidth = 3; g.beginPath(); g.arc(0, -18, 18, spin, spin + 1.4); g.stroke();
+  g.fillStyle = C.ink; g.fillRect(-30, 6, 22, 6);
+  g.restore();
+}
+
+// ── the badge: a rounded polygon, so the lid can turn into it ──
+const LG = window.LOGO, LW = LG.w, LH = LG.h, MARK = new Path2D(LG.mark);
+const BADGE = [[0, 0], [118.5, 0], [186.6, 124], [131.6, 235.1], [0, 235.1]], BADGE_R = [36, 7, 9, 7, 27];
+function badgePts(x, y, w, h) { return BADGE.map(([u, v]) => [x + u / LW * w, y + v / LH * h]); }
+function lidPts(x, y, w, h) { return [[x, y], [x + w, y], [x + w, y + h / 2], [x + w, y + h], [x, y + h]]; }
+function drawBadge(cx, cy, hgt, markOp) {                 // the finished badge, centred at cx, cy
+  const s = hgt / LH, w = LW * s, x = cx - w / 2, y = cy - hgt / 2;
+  g.fillStyle = C.blue; poly(badgePts(x, y, w, hgt), BADGE_R.map(r => r * s)); g.fill();
+  if (markOp > 0) { g.save(); g.globalAlpha = markOp; g.translate(x, y); g.scale(s, s); g.fillStyle = '#fff'; g.fill(MARK, 'evenodd'); g.restore(); }
+}
+function bandsIn(pts, rad, op) {                          // the logo's faint diagonal waves
+  if (op <= 0) return; g.save(); poly(pts, rad); g.clip();
+  const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]), x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys), hh = y1 - y0;
+  g.globalAlpha = op * 0.55; g.fillStyle = C.blue2;
+  for (const f of [0.22, 0.58, 0.9]) { g.beginPath(); g.moveTo(x0 - 20, y0 + hh * f); g.bezierCurveTo(x0 + (x1 - x0) * 0.35, y0 + hh * (f - 0.08), x0 + (x1 - x0) * 0.6, y0 + hh * (f + 0.06), x1 + 20, y0 + hh * (f - 0.04));
+    g.lineTo(x1 + 20, y0 + hh * (f + 0.03)); g.bezierCurveTo(x0 + (x1 - x0) * 0.6, y0 + hh * (f + 0.12), x0 + (x1 - x0) * 0.35, y0 + hh * (f - 0.02), x0 - 20, y0 + hh * (f + 0.06)); g.closePath(); g.fill(); }
+  g.restore(); g.globalAlpha = 1;
+}
+
+// ── the gather: every parcel hops from wherever it is on screen into our box ──
+let GATHER = [];
+function heroScreen(t, cam) { const b = boxAt(t); return OM.project(OM.view(cam), b.x, b.yb); }
+function netAt(i, t) {
+  const p = NET[i], gt = GATHER[i];
+  if (!gt || t < gt.t0) { const q = netRaw(p, t); return { ...q, s: p.s }; }
+  if (t >= gt.t1) return { gone: true };
+  return { screen: true };
+}
+function drawGather(t, cam) {
+  screen();
+  const MF = OM.view(cam, { depth: FAR }), M0 = OM.view(cam), z0 = Math.hypot(M0[0], M0[1]), zf = Math.hypot(MF[0], MF[1]);
+  for (let i = 0; i < NET.length; i++) { const gt = GATHER[i]; if (!gt || t < gt.t0 || t >= gt.t1) continue;
+    const k = (t - gt.t0) / (gt.t1 - gt.t0), A = OM.project(MF, gt.x, gt.y), B = heroScreen(t, cam);
+    const x = lerp(A[0], B[0], k), y = lerp(A[1], B[1], k) - Math.sin(Math.PI * k) * gt.arc, s = lerp(NET[i].s * zf, z0, k);
+    g.save(); g.translate(x, y); g.scale(s, s); drawParcel(0, 0, 1, 1, 1, (B[0] > A[0] ? 1 : -1) * 0.9 * Math.sin(Math.PI * k), 1); g.restore(); }
+}
+function gatherSquash(t) { let sx = 1, sy = 1; for (const gt of GATHER) { const im = OM.impact(t, gt.t1, { decay: 10, omega: 28, sqx: 0.07, sqy: 0.09 }); sx *= im.sx; sy *= im.sy; } return [sx, sy]; }
+
+// ── the lockup ──
+const LOCK = { cx: 960, cy: 392, h: 330, word: 'fastroo', wy: 712, wsz: 150, line: 736, tag: 'توصيل سريع… لباب بيتك', ty: 816 };
+let LETTERS = [];
+function measure() {
+  g.font = AR(800, LOCK.wsz); let x = 0; const ws = [...LOCK.word].map(ch => { const w = g.measureText(ch).width; const o = { ch, x, w }; x += w - 2; return o; });
+  const x0 = LOCK.cx - x / 2; LETTERS = ws.map(o => ({ ...o, x: x0 + o.x }));
+  LOCK.wordW = x;
+}
+function lidScreen(cam) { const b = boxAt(T.lid0); const M = OM.view(cam); const p = OM.project(M, b.x - BW / 2 - 3, b.yb - BH), q = OM.project(M, b.x + BW / 2 + 3, b.yb - BH + 22); return { x: p[0], y: p[1], w: q[0] - p[0], h: q[1] - p[1] }; }
+function bodyScreen(cam) { const b = boxAt(T.lid0); const M = OM.view(cam); const p = OM.project(M, b.x - BW / 2, b.yb - BH + 22), q = OM.project(M, b.x + BW / 2, b.yb); return { x: p[0], y: p[1], w: q[0] - p[0], h: q[1] - p[1] }; }
+function drawLockup(t, cam) {
+  screen();
+  const bw = LW * LOCK.h / LH, BB = { x: LOCK.cx - bw / 2, y: LOCK.cy - LOCK.h / 2, w: bw, h: LOCK.h };
+  // body → the line the name lands on
+  const BS = bodyScreen(cam);
+  {
+    const fk = ease.expoInOut(seg(t, T.flat0, T.flat1)), L = { x: LOCK.cx - LOCK.wordW / 2 - 20, y: LOCK.line, w: LOCK.wordW + 40, h: 7 };
+    const sp = t >= T.flat1 ? 1 + ring(t - T.flat1, 7, 20) * 0.04 : 1;
+    const shrink = ease.expoInOut(seg(t, T.line0, T.line0 + 0.55));
+    let R = { x: lerp(BS.x, L.x, fk), y: lerp(BS.y, L.y, fk), w: lerp(BS.w, L.w, fk) * sp, h: lerp(BS.h, L.h, fk) };
+    R.x = LOCK.cx - R.w / 2 + (BS.x + BS.w / 2 - LOCK.cx) * (1 - fk);
+    const fw = lerp(R.w, 120, shrink); R = { x: LOCK.cx - fw / 2 + (R.x + R.w / 2 - LOCK.cx), y: R.y + shrink * 16, w: fw, h: R.h };
+    g.fillStyle = mix(C.kraft, C.blue, fk); rr(R.x, R.y, R.w, R.h, lerp(6, 3.5, fk)); g.fill();
+    if (fk < 0.4) { g.globalAlpha = 1 - fk / 0.4; g.fillStyle = '#fff'; rr(R.x + R.w * 0.58, R.y + R.h * 0.2, R.w * 0.32, R.h * 0.4, 3); g.fill(); g.globalAlpha = 1; }
+  }
+  // lid → badge
+  const LS = lidScreen(cam), k = t < T.lid0 ? 0 : spring(t - T.lid0, 0.66, 10), sk = ease.expoOut(seg(t, T.lid0, T.lid0 + 0.7));
+  const im = OM.impact(t, T.markLand, { decay: 8, omega: 22, sqx: 0.05, sqy: 0.06 });
+  const cx = lerp(LS.x + LS.w / 2, BB.x + BB.w / 2, k), cy = lerp(LS.y + LS.h / 2, BB.y + BB.h / 2, k) - Math.sin(Math.PI * clamp(k)) * 60;
+  const w = lerp(LS.w, BB.w, k) * im.sx, h = lerp(LS.h, BB.h, k) * im.sy;
+  const P0 = lidPts(-LS.w / 2, -LS.h / 2, LS.w, LS.h), P1 = badgePts(-BB.w / 2, -BB.h / 2, BB.w, BB.h);
+  const pts = P0.map((p, i) => [lerp(p[0], P1[i][0], sk) * w / lerp(LS.w, BB.w, sk), lerp(p[1], P1[i][1], sk) * h / lerp(LS.h, BB.h, sk)]);
+  const rad = BADGE_R.map(r => lerp(4, r * BB.h / LH, sk) * Math.min(1, h / BB.h + 0.2));
+  const rot = t < T.lid0 ? 0 : ring(t - T.lid0, 3.2, 8) * 0.35;
+  g.save(); g.translate(cx, cy); g.rotate(rot);
+  g.fillStyle = mix(C.kraftL, C.blue, sk); poly(pts, rad); g.fill();
+  if (sk < 0.5) { g.save(); poly(pts, rad); g.clip(); g.fillStyle = C.blue; g.globalAlpha = 1 - sk * 2; g.fillRect(-w / 2 - 4, -h / 2 + h * 4 / 22, w + 8, h * 13 / 22); g.restore(); g.globalAlpha = 1; }
+  bandsIn(pts, rad, sstep(T.lid0 + 0.4, T.lid0 + 1.0, t));
+  g.restore();
+  const lidBox = { x: cx - w / 2, y: cy - h / 2, w, h };
+  // the kangaroo hops out of the box into the badge
+  if (t >= T.mark0) {
+    const hk = seg(t, T.mark0, T.markLand), from = [BS.x + BS.w / 2, BS.y + 6], to = [BB.x + BB.w / 2, BB.y + BB.h / 2];
+    const mx = lerp(from[0], to[0], hk), my = lerp(from[1], to[1], hk) - 4 * 230 * hk * (1 - hk);
+    const ms = lerp(0.32, 1, ease.cubicOut(hk)) * LOCK.h / LH;
+    const mi = OM.impact(t, T.markLand, { decay: 7, omega: 24, sqx: 0.12, sqy: 0.15 });
+    const mr = t < T.markLand ? -0.35 * Math.sin(Math.PI * hk) : 0;
+    g.save(); g.translate(mx, my); g.rotate(mr); g.scale(ms * mi.sx, ms * mi.sy); g.translate(-LW / 2, -LH / 2);
+    g.fillStyle = '#fff'; g.fill(MARK, 'evenodd'); g.restore();
+  }
+  // fastroo lands on the line, letter by letter
+  g.font = AR(800, LOCK.wsz); g.textBaseline = 'alphabetic'; g.textAlign = 'left';
+  LETTERS.forEach((L, i) => { const d = OM.letterDrop(t, T.word0, i, { stagger: 0.06, dist: -90 }); if (d.op <= 0) return;
+    g.save(); g.globalAlpha = d.op; g.translate(L.x + L.w / 2, LOCK.wy + d.y); g.scale(d.sx, d.sy); g.fillStyle = i >= 4 ? C.blue : C.ink; g.fillText(L.ch, -L.w / 2, 0); g.restore(); });
+  // the tagline
+  { const w = OM.wordRise(t, T.tag0, { dist: 22 }); g.globalAlpha = w.op; g.font = AR(500, 46); g.textAlign = 'center'; g.direction = 'rtl'; g.fillStyle = C.mute;
+    g.save(); g.translate(LOCK.cx, LOCK.ty + w.y); g.scale(w.s, w.s); g.fillText(LOCK.tag, 0, 0); g.restore(); g.direction = 'ltr'; g.globalAlpha = 1; }
+  return { lid: lidBox, badge: { x: BB.x, y: BB.y, w: BB.w, h: BB.h }, word: { x: LOCK.cx - LOCK.wordW / 2, y: LOCK.wy - 120, w: LOCK.wordW, h: 150 } };
+}
+
+// ── words in the world ──
+function worldWord(t, t0, str, x, y, px, out = 1e9) {
+  if (t < t0 - 0.02 || t > out + 0.4) return;
+  const w = OM.wordRise(t, t0, { dist: px * 0.4 }), o = OM.liftOut(t, out, { dist: px * 0.6, blur: 0 });
+  g.save(); g.globalAlpha = w.op * o.op; g.font = AR(800, px); g.textAlign = 'center'; g.textBaseline = 'alphabetic'; g.direction = 'rtl'; g.fillStyle = C.ink;
+  g.translate(x, y + w.y + o.dy); g.scale(w.s, w.s); g.fillText(str, 0, 0); g.restore(); g.globalAlpha = 1;
+}
+
+// ── seek ──
+let CAM = null, TRACK = {};
+function seek(t) {
+  CAM = camAt(t);
+  screen(); g.fillStyle = C.ground; g.fillRect(0, 0, W, H);
+  // far dots to slide against
+  { const L = OM.lattice(CAM, { depth: 1.2, spacing: 64, px: 1.5 }); setM(L.matrix); g.fillStyle = '#d6dcea';
+    for (let x = L.x0; x <= L.x1; x += L.spacing) for (let y = L.y0; y <= Math.min(L.y1, GY - 40); y += L.spacing) { g.beginPath(); g.arc(x, y, L.r, 0, 6.2832); g.fill(); } }
+  drawFar(t, CAM);
+  const M = OM.view(CAM); setM(M);
+  drawStore(); drawStreet(t); drawHouse(t); drawGround(CAM);
+  setM(M); drawRoute(t, CAM);
+  // the words that sit in the world
+  worldWord(t, T.ready, 'طلبك جاهز.', 690, 500, 58, T.crouch0 + 0.15);
+  worldWord(t, 5.05, 'من المتجر…', 2780, 330, 92, T.pull0 - 0.4);
+  worldWord(t, 9.35, '…إلى بابك', 6650, -640, 170, T.pull0 + 0.2);
+  worldWord(t, T.arrived, 'وصل طلبك.', HOME + 20, 360, 62, T.pull0 + 0.1);
+  // the box
+  const b = boxAt(t); const [gx, gy] = gatherSquash(t); b.sx *= gx; b.sy *= gy;
+  const open = t >= T.lid0;
+  if (t < T.iris0 + 0.05) { setM(M); drawBox(t, b); }
+  setM(M); drawDispenser(t);
+  if (t >= T.gather0) drawGather(t, CAM);
+  // the iris opens from the box onto a clean ground, and the lockup is built from the box
+  let lock = null;
+  if (t >= T.iris0) {
+    screen(); const hs = heroScreen(t, CAM), ir = OM.iris(t, T.iris0, T.iris0 + 0.85, hs[0], hs[1] - BH * CAM.zoom / 2);
+    g.fillStyle = C.ground; g.beginPath(); g.arc(hs[0], hs[1] - BH * CAM.zoom / 2, ir.r, 0, 6.2832); g.fill();
+    if (!open) { setM(M); drawBox(t, b, { noShadow: true }); }
+    lock = drawLockup(t, CAM);
+  }
+  // hits: three words, hard cuts, while the whole city hops
+  if (t >= T.hits[0][0] && t < T.hitsOut + 0.3) { screen();
+    const st = OM.staccato(t, T.hits), i = st.i, w = OM.wordRise(t, T.hits[Math.max(0, i)][0], { dist: 30, omega: 30, zeta: 0.5 }), o = OM.liftOut(t, T.hitsOut, { dist: 60, blur: 0 });
+    g.globalAlpha = o.op; g.font = AR(800, 170); g.textAlign = 'center'; g.direction = 'rtl'; g.fillStyle = C.ink;
+    g.save(); g.translate(960, 330 + w.y + o.dy); g.scale(w.s, w.s); g.fillText(st.word || '', 0, 0); g.restore(); g.direction = 'ltr'; g.globalAlpha = 1; }
+  // grain against banding
+  screen();
+  // track (screen boxes)
+  const bs = OM.projectBox(M, { x: b.x - BW / 2, y: b.yb - BH, w: BW, h: BH });
+  TRACK = { box: t < T.lid0 ? bs : lock ? lock.lid : null };
+  if (lock) { if (t >= T.markLand) TRACK.badge = lock.badge; if (t >= T.word0 + 0.6) TRACK.word = lock.word; }
+  document.getElementById('hud').textContent = 't=' + t.toFixed(3) + ' zoom=' + CAM.zoom.toFixed(3);
+  return true;
+}
+
+// ── for render.py / probe.py / the score ──
+window.__seek = async t => { seek(t); return true; };
+window.__track = t => { seek(t); const o = {}; for (const k in TRACK) if (TRACK[k]) o[k] = TRACK[k]; return o; };
+window.__motion = (t0, t1) => {
+  const c0 = camAt(t0), c1 = camAt(t1), cm = camAt((t0 + t1) / 2);
+  let d = OM.screenTravel(c0, c1, cm);
+  const p = t => { const c = camAt(t), b = boxAt(t); return OM.project(OM.view(c), b.x, b.yb - BH / 2); };
+  const a = p(t0), z = p(t1); d = Math.max(d, Math.hypot(a[0] - z[0], a[1] - z[1]));
+  if (t1 > T.gather0 && t0 < T.dive1 + 0.2) d = Math.max(d, 400);                     // parcels flying in
+  if (t1 > T.lid0 && t0 < T.word0 + 1.2) d = Math.max(d, 160);
+  return d;
+};
+window.__events = () => {
+  const ev = [], pan = (t, x, y) => { const c = camAt(t); const s = OM.project(OM.view(c), x, y ?? GY); return clamp((s[0] - 960) / 960, -1, 1); };
+  ev.push({ t: T.tape0, kind: 'tape', pan: -0.1, v: 1, dur: T.tape1 - T.tape0 });
+  ev.push({ t: T.ready, kind: 'word', pan: 0, v: 0.6 });
+  HOPS.forEach((h, i) => { ev.push({ t: h.t0, kind: i === HOPS.length - 1 ? 'leap' : 'hop', pan: pan(h.t0, h.x0), v: i === 0 ? 1 : 0.6 + 0.04 * i, dur: h.t1 - h.t0 });
+    ev.push({ t: h.t1, kind: i === HOPS.length - 1 ? 'bigland' : 'land', pan: pan(h.t1, h.x1), v: i === 0 ? 1 : 0.55 + 0.05 * i }); });
+  ev.push({ t: 5.05, kind: 'word', pan: 0.3, v: 0.5 }); ev.push({ t: 9.35, kind: 'word', pan: 0, v: 0.6 });
+  ev.push({ t: T.bell, kind: 'bell', pan: pan(T.bell, 8452), v: 1 });
+  ev.push({ t: T.arrived, kind: 'word', pan: 0, v: 0.6 });
+  ev.push({ t: T.pull0, kind: 'pull', pan: 0, v: 1, dur: T.pull1 - T.pull0 });
+  T.hits.forEach(([t], i) => ev.push({ t, kind: 'hit', pan: 0, v: 0.8 + 0.1 * i }));
+  GATHER.forEach(gt => { ev.push({ t: gt.t0, kind: 'fly', pan: gt.pan, v: 0.5, dur: gt.t1 - gt.t0 }); ev.push({ t: gt.t1, kind: 'merge', pan: 0, v: 0.6 }); });
+  ev.push({ t: T.dive1 - 3.0, kind: 'dive', pan: 0, v: 1, dur: 3.0 });
+  ev.push({ t: T.iris0, kind: 'iris', pan: 0, v: 1 });
+  ev.push({ t: T.lid0, kind: 'lid', pan: 0, v: 1 });
+  ev.push({ t: T.mark0, kind: 'markhop', pan: 0, v: 1, dur: T.markLand - T.mark0 });
+  ev.push({ t: T.markLand, kind: 'markland', pan: 0, v: 1 });
+  ev.push({ t: T.flat0, kind: 'flat', pan: 0, v: 1 });
+  LETTERS.forEach((L, i) => ev.push({ t: T.word0 + i * 0.06 + 0.07, kind: 'letter', pan: (L.x - 960) / 960 * 0.5, v: 0.6 }));
+  ev.push({ t: T.tag0, kind: 'word', pan: 0, v: 0.5 });
+  return { T: DUR, events: ev.sort((a, b) => a.t - b.t) };
+};
+function buildGather() {
+  // each parcel starts at its first landing after its turn and arcs into our box
+  const cam = camAt(T.gather0 + 0.4), MF = OM.view(cam, { depth: FAR });
+  const order = NET.map((p, i) => { const q = netRaw(p, T.gather0); const s = OM.project(MF, q.x, q.y); return { i, d: Math.hypot(s[0] - 1200, s[1] - 700) }; }).sort((a, b) => a.d - b.d);
+  GATHER = new Array(NET.length);
+  order.forEach((o, n) => {
+    const p = NET[o.i]; let t0 = T.gather0 + n * 0.14;
+    for (let tt = t0; tt < t0 + 1.2; tt += 1 / 240) { const q = netRaw(p, tt); if (q.land !== null) { t0 = tt; break; } }
+    const q = netRaw(p, t0), dur = 0.95 + 0.25 * (n % 3) / 2;
+    GATHER[o.i] = { t0, t1: Math.min(t0 + dur, T.dive1 + 0.35), x: q.x, y: q.y, arc: 160 + 90 * (n % 4), pan: clamp((OM.project(MF, q.x, q.y)[0] - 960) / 960, -1, 1) };
+  });
+}
+window.__ready = document.fonts.load(AR(800, 100)).then(() => document.fonts.load(AR(500, 40))).then(() => document.fonts.ready).then(() => { measure(); buildGather(); seek(0); return true; });
+const q = new URLSearchParams(location.search);
+if (q.has('t')) __ready.then(() => seek(parseFloat(q.get('t'))));
+if (q.has('hud')) document.getElementById('hud').style.display = 'block';
+if (q.has('play')) __ready.then(() => { const t0 = performance.now(); (function loop() { seek(((performance.now() - t0) / 1000) % DUR); requestAnimationFrame(loop); })(); });
+</script>
+</body>
+</html>
